@@ -16,14 +16,19 @@ Position, rotate, and scale objects for nearly **endless fun!** \
 |C|Reset Light Color|
 
 ## Building the Program
+This will outline how to build the project using command line. \
+If you are using a GUI, it's likely not all of the functionality is present (for example in GitHub Desktop, submodule functionality is not supported, so command line is necessary).
+
 ### 1.) Clone Repository
-This can be done with the following git command: \
+
+Navigate to the directory you would like the cloned repository to reside in. Take note that the clone will be in a subfolder. \
+`cd Path/To/Where/Repository/Will/Be/Cloned/To`
+
+Once within the correct directory, clone this repository to it using the following git command: \
 `git clone --recursive https://github.com/LensPlaysGames/CMake_OpenGLBasics` \
 The `--recursive` tells git to also download all necessary submodules.
 
 This may take a while, so be patient. \
-These commands should download and update all submodules if the `--recursive` tag didn't work when cloning (which it never does for me). \
-If the tag did work, nothing will change.
 
 To double-check the submodules are included correctly, use a file explorer and make sure the directories of the submodules contain more than just a `.git` file. 
 
@@ -55,6 +60,9 @@ If for some reason, git still won't pull the submodule's repository to your mach
 `git clone https://github.com/assimp/assimp` \
 Make sure to delete the existing empty directory before running the clone command or git will complain.
 
+These commands should download and update all submodules if the `--recursive` tag didn't work when cloning. \
+If the tag did work, nothing will change.
+
 ### Submodules:
 (in case you are having trouble cloning correctly)
 - [GLEW](https://github.com/Perlmint/glew-cmake)
@@ -69,8 +77,6 @@ CMake is a cross-platform, [open-source](https://github.com/Kitware/CMake) build
 
 For full documentation visit the [CMake Home Page](https://cmake.org/) and the [CMake Documentation Page](https://cmake.org/documentation). \
 The [CMake Community Wiki](https://gitlab.kitware.com/cmake/community/-/wikis/home) also references useful guides and recipes.
-
-This will outline how to build the project using command line, so if you are using a GUI feel free to submit an issue and I will do my best to help you out.
 
 First, determine which build system generator of CMake you would like to use. \
 Build system generators are **platform specific**, so be sure to choose the correct one for your environment. \
