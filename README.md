@@ -92,4 +92,4 @@ Feel free to replace `./build` with any output directory of your choice.
 Once built, navigate to the build directory and open up the Visual Studio solution (be sure to open with the correct version of Visual Studio). \
 Once the solution is open, select the correct build target (default is "Debug" but "Release" has much better performance). \
 Once the target is set correctly, build the solution. This can be done quickly using `F6` or through the Build dropdown at the top. \
-If all goes well, you will end up with a .exe in the 'OpenGLBasics_CMake' directory. Run this to run the program.
+If all goes well, you will end up with a .exe in the 'OpenGLBasics' directory. Run this to run the program.
