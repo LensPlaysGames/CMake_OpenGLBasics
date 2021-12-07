@@ -35,7 +35,9 @@ If you're not into reading, or the thread is deleted by now, you can try to run 
 
 This command should try to download the submodule repository from origin master, which is the default repository branch.
 
-If for some reason, git still won't pull the submodule's repository to your machine, you can always do it yourself by cloning the repository directly into the folder. I often have to do this with GLEW for some reason. Luckily, we already know how to clone a repository to a directory, so it should be self explanatory given the links to the submodules below.
+If for some reason, git still won't pull the submodule's repository to your machine, you can always do it yourself by cloning the repository directly into the folder. I often have to do this with GLEW for some reason ie. \
+`git clone https://github.com/Perlmint/glew-cmake` \
+Make sure to delete the directory or git will complain.
 
 To double-check the submodules are correctly initialized and updated, use the git command: \
 `git submodule status`
