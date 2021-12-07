@@ -8,7 +8,7 @@ add_executable (CMake_OpenGLBasics ${HEADER_FILES} ${SOURCE_FILES})
 
 target_include_directories(CMake_OpenGLBasics PUBLIC ${CMAKE_SOURCE_DIR}/glm)
 target_include_directories(CMake_OpenGLBasics PUBLIC ${CMAKE_SOURCE_DIR}/glfw/include)
-target_include_directories(CMake_OpenGLBasics PUBLIC ${CMAKE_SOURCE_DIR}/glew/include)
+target_include_directories(CMake_OpenGLBasics PUBLIC ${CMAKE_SOURCE_DIR}/glew-cmake/include)
 target_include_directories(CMake_OpenGLBasics PUBLIC ${CMAKE_SOURCE_DIR}/assimp/include)
 
 target_link_libraries(CMake_OpenGLBasics libglew_static glfw assimp)
