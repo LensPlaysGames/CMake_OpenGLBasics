@@ -96,4 +96,8 @@ Once the target is set correctly, build the solution. This can be done using `F6
 Beware, this may take several minutes! I recommend getting up and stretching, using the restroom, or even just drinking some water. \
 If all goes well, you will end up with a .exe in the 'OpenGLBasics/Release' directory. Run this to run the program.
 
+### Errors I've encountered while building:
+**Error:** `the command setlocal(` or some variation: \
+**Solution:** Assimp dynamic library 'assimp-vc143-mt.dll' is not copying correctly. Ensure Path/To/Repository/dlls/assimp-vc143-mt.dll exists and is valid.
+
 If you encounter errors, submit an issue and I will do my best to help you and update this guide with any likely speed-bumps along the way.
