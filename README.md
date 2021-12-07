@@ -21,35 +21,32 @@ This can be done with the following git command: \
 `git clone --recursive https://github.com/LensPlaysGames/CMake_OpenGLBasics` \
 The `--recursive` tells git to also download all necessary submodules.
 
-Once everything is cloned over to your local repository, run the following commands: \
-`git submodule init` \
-`git submodule update`
-
 This may take a while, so be patient. \
 These commands should download and update all submodules if the `--recursive` tag didn't work when cloning (which it never does for me). \
 If the tag did work, nothing will change.
 
-To double-check the submodules are correctly initialized and updated, use the git command: \
-`git submodule status`
+To double-check the submodules are included correctly, use a file explorer and make sure the directories of the submodules contain more than just a `.git` file. 
 
-This will return what looks like a bunch of nonsense but if all of the submodules listed below are listed there then you are good to go. \
-Example of correct console output: \
-`$ git submodule status` \
- `70f5cca9c3ebd84b89c5775852ac9aa2449f6c5b assimp (Release3.1_RC1-8864-g70f5cca9c)` \
- `466859eeea029099db5b342a506e68d3ea3b78a7 glew-cmake (glew-1.10.0-716-g466859e)` \
- `53d86c64d709ff52886580d338d9b3b2b1f27266 glfw (3.3-505-g53d86c64)` \
- `6ad79aae3eb5bf809c30bf1168171e9e55857e45 glm (0.9.5.3-2659-g6ad79aae)`
+If the folders are empty, there are a few things you can try seen below. \
+If the folders are populated correctly, skip to Step 2 - Build with CMake.
 
-Once common error I get is 'fatal: Needed a single revision'. \
-To solve this, I found this [StackOverflow Thread](https://stackoverflow.com/questions/38227598/git-submodule-update-init-gives-error-fatal-needed-a-single-revision-unable-t) \
-If you're not into reading, or the thread is deleted by now, you can try to run the following commands before running submodule init and submodule update once again. \
-`git submodule foreach git pull origin master`
+The following commands are ran from inside the cloned repository directory. If using the same git terminal as before, you will need to navigate to the cloned directory. \
+`cd CMake_OpenGLBasics`
 
-This command should try to download the submodule repository from origin master, which is the default repository branch.
-
-Some poeple have had success using the following commands: \
+Some people have had success using the following commands: \
 `git submodule sync` \
 `git submodule update --init`
+ 
+If the submodule's directories are still empty, run the following commands: \
+`git submodule init` \
+`git submodule update`
+
+One common error I get is 'fatal: Needed a single revision'. \
+To solve this, I found this [StackOverflow thread](https://stackoverflow.com/questions/38227598/git-submodule-update-init-gives-error-fatal-needed-a-single-revision-unable-t).
+
+If you're not into reading, or the thread is deleted by now, you can try to run the following commands before running submodule init and submodule update once again. \
+`git submodule foreach git pull origin master` \
+This command should try to download the submodule repository from origin master, which is the default repository branch.
 
 If for some reason, git still won't pull the submodule's repository to your machine, you can always do it yourself by cloning the repository directly. \
 `git clone https://github.com/Perlmint/glew-cmake` \
