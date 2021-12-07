@@ -68,6 +68,15 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
+/* I supposedly am responsible to `delete` everything that I create with `new`
+*   I do that a lot...
+* 
+*   Occurences Found:
+*       - Shaders       in CreateShader()
+*       - Materials     in CreateObjects()
+*       - Objects       in CreateObjects()
+*/
+
 /* WINDOW OPTIONS AND CONFIGURATION */
 const static std::string WINDOW_TITLE = "OpenGL with GLFW + GLEW";          // SPECIFY TITLE OF WINDOW IN OS
 const int START_MAXIMIZED = GLFW_TRUE;
@@ -429,6 +438,15 @@ int main(void)
 
         /* Set previous frame time to current frame time for next frame */
         Timer::previousTime = Timer::time;
+    }
+
+    for (auto& i : g_Scene.Objects) {
+        Shader* shader = i.first;
+        for(auto& object : i.second)
+        {
+            delete object;
+        }   
+        delete shader;
     }
 
 #pragma region Print End Statistics
