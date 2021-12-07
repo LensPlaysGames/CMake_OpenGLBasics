@@ -33,9 +33,10 @@ This may take a while, so be patient. \
 To double-check the submodules are included correctly, use a file explorer and make sure the directories of the submodules contain more than just a `.git` file. 
 
 If the folders are empty, there are a few things you can try seen below. \
-If the folders are populated correctly, skip to Step 2 - Build with CMake.
+If the folders are populated correctly, [skip to Step 2 - Build with CMake](https://github.com/LensPlaysGames/CMake_OpenGLBasics#2-build-with-cmake).
 
-The following commands are ran from inside the cloned repository directory. If using the same git terminal as before, you will need to navigate to the cloned directory. \
+The following commands are ran from inside the cloned repository directory. \
+If using the same git terminal as before, you will need to navigate to the cloned directory. \
 `cd CMake_OpenGLBasics`
 
 Some people have had success using the following commands: \
