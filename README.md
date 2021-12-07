@@ -79,6 +79,12 @@ CMake is a cross-platform, [open-source](https://github.com/Kitware/CMake) build
 For full documentation visit the [CMake Home Page](https://cmake.org/) and the [CMake Documentation Page](https://cmake.org/documentation). \
 The [CMake Community Wiki](https://gitlab.kitware.com/cmake/community/-/wikis/home) also references useful guides and recipes.
 
+Included is a `build_cmake.bat` file that can be ran to build the program using the default CMake generator for your system. \
+For Windows, the default generator is Visual Studio 17 2022, which is exactly what I use. \
+That means to generate a solution, all one has to do is double click the `.bat`. \
+From there, you can build the solution in Visual Studio to get a `.exe` to run. \
+You could also edit the `build_cmake.bat` to use any generator you wish with the `-G "Name of Generator"` option.
+
 First, determine which build system generator of CMake you would like to use. \
 Build system generators are **platform specific**, so be sure to choose the correct one for your environment. \
 For a list of available generators, reference the [CMake Documentation Page](https://cmake.org/documentation). \
