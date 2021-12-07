@@ -11,6 +11,7 @@ Position, rotate, and scale objects for nearly **endless fun!** \
 |WASD|Move|
 |Q|Move Up|
 |E|Move Down|
+|L Shift|Move Faster|
 |Space|Randomize Light Color|
 |C|Reset Light Color|
 
@@ -45,6 +46,10 @@ If you're not into reading, or the thread is deleted by now, you can try to run 
 `git submodule foreach git pull origin master`
 
 This command should try to download the submodule repository from origin master, which is the default repository branch.
+
+Some poeple have had success using the following commands: \
+`git submodule sync` \
+`git submodule update --init`
 
 If for some reason, git still won't pull the submodule's repository to your machine, you can always do it yourself by cloning the repository directly. \
 `git clone https://github.com/Perlmint/glew-cmake` \
@@ -84,3 +89,11 @@ Once in the correct directory, generate a solution and project using the followi
 `cmake -G "Visual Studio 17 2022" -S . -B ./build`
 
 Feel free to replace `./build` with any output directory of your choice.
+
+Once built, navigate to the build directory and open up the Visual Studio solution (be sure to open with the correct version of Visual Studio). \
+Once the solution is open, select the correct build target configuration with the dropdown at the top (default is "Debug" but "Release" has much better performance). \
+Once the target is set correctly, build the solution. This can be done using `F6` or through the Build dropdown at the top. \
+Beware, this may take several minutes! I recommend getting up and stretching, using the restroom, or even just drinking some water. \
+If all goes well, you will end up with a .exe in the 'OpenGLBasics/Release' directory. Run this to run the program.
+
+If you encounter errors, submit an issue and I will do my best to help you and update this guide with any likely speed-bumps along the way.
