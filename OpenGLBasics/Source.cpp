@@ -72,9 +72,18 @@
 *   I do that a lot...
 * 
 *   Occurences Found:
-*       - Shaders       in CreateShader()
-*       - Materials     in CreateObjects()
-*       - Objects       in CreateObjects()
+*       - Shaders               in CreateShader()
+*       - Materials             in CreateObjects()
+*       - Objects               in CreateObjects()
+*       - g_Scene.MainLight
+* 
+*   Occurences Fixed:
+*       - Objects
+*       - Shaders
+*       - g_Scene.MainLight
+* 
+*   TODO: Final Fix:
+*       - Move Shader* to Material struct, then the global object map will be a map<Material*, Object*> and from there all allocated memory will be able to be freed using delete on program exit.
 */
 
 /* WINDOW OPTIONS AND CONFIGURATION */
@@ -440,6 +449,7 @@ int main(void)
         Timer::previousTime = Timer::time;
     }
 
+    /* Free memory allocated to Objects and Shaders */
     for (auto& i : g_Scene.Objects) {
         Shader* shader = i.first;
         for(auto& object : i.second)
@@ -448,6 +458,9 @@ int main(void)
         }   
         delete shader;
     }
+
+    /* Free memory allocated to main light */
+    delete g_Scene.MainLight;
 
 #pragma region Print End Statistics
     int width = 0;
