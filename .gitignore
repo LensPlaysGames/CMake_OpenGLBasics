@@ -46,6 +46,12 @@ CTestTestfile.cmake
 
 # Executables
 *.exe
+# I can't commit to GitHub unless these folders are excluded (hopefully retaining submodules)
+assimp/
+glew/
+glfw/
+glm/
+
 *.out
 *.app
 

@@ -1,4 +1,32 @@
 cmake_minimum_required (VERSION 3.8)
 
-# Add source to this project's executable.
-add_executable (CMake_OpenGLBasics "CMake_OpenGLBasics.cpp")
+set(SOURCE_FILES "Camera.cpp" "FPSTimer.cpp" "Mesh.cpp" "Model.cpp" "Object.cpp" "Renderer.cpp" "Shader.cpp" "Timer.cpp" "Source.cpp")
+set(HEADER_FILES "Primitives.h" "Camera.h" "FPSTimer.h" "Mesh.h" "Model.h" "Object.h" "Renderer.h" "Shader.h" "Timer.h")
+
+# Add source files to this project's executable.
+add_executable (CMake_OpenGLBasics ${HEADER_FILES} ${SOURCE_FILES})
+
+target_include_directories(CMake_OpenGLBasics PUBLIC ${CMAKE_SOURCE_DIR}/glm)
+target_include_directories(CMake_OpenGLBasics PUBLIC ${CMAKE_SOURCE_DIR}/glfw/include)
+target_include_directories(CMake_OpenGLBasics PUBLIC ${CMAKE_SOURCE_DIR}/glew/include)
+target_include_directories(CMake_OpenGLBasics PUBLIC ${CMAKE_SOURCE_DIR}/assimp/include)
+
+target_link_libraries(CMake_OpenGLBasics libglew_static glfw assimp)
+
+# Copy assimp DLL
+add_custom_command(TARGET CMake_OpenGLBasics POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${PROJECT_SOURCE_DIR}/dlls/assimp-vc143-mt.dll"
+        $<TARGET_FILE_DIR:CMake_OpenGLBasics>)
+
+# Copy shaders
+add_custom_command(TARGET CMake_OpenGLBasics POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${PROJECT_SOURCE_DIR}/shaders"
+        $<TARGET_FILE_DIR:CMake_OpenGLBasics>/../shaders/)
+
+# Copy 3D Models
+add_custom_command(TARGET CMake_OpenGLBasics POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${PROJECT_SOURCE_DIR}/models"
+        $<TARGET_FILE_DIR:CMake_OpenGLBasics>/../models/)
