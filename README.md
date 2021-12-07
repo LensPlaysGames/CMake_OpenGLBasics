@@ -46,6 +46,10 @@ If you're not into reading, or the thread is deleted by now, you can try to run 
 
 This command should try to download the submodule repository from origin master, which is the default repository branch.
 
+Some poeple have had success using the following commands: \
+`git submodule sync` \
+`git submodule update --init`
+
 If for some reason, git still won't pull the submodule's repository to your machine, you can always do it yourself by cloning the repository directly. \
 `git clone https://github.com/Perlmint/glew-cmake` \
 `git clone https://github.com/glfw/glfw` \
