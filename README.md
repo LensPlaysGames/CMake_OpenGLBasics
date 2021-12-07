@@ -11,6 +11,7 @@ Position, rotate, and scale objects for nearly **endless fun!** \
 |WASD|Move|
 |Q|Move Up|
 |E|Move Down|
+|L Shift|Move Faster|
 |Space|Randomize Light Color|
 |C|Reset Light Color|
 
