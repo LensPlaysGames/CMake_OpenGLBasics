@@ -3,6 +3,6 @@
 project (CMake_OpenGLBasics)
 
 add_subdirectory(glfw)
-add_subdirectory(glew)
+add_subdirectory(glew-cmake)
 add_subdirectory(assimp)
 add_subdirectory(OpenGLBasics)
