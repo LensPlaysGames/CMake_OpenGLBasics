@@ -1,6 +1,7 @@
 # CMake Build Folder
 CMakeBuild/*
 out/*
+build/*
 
 # Build Folders
 Debug/*
