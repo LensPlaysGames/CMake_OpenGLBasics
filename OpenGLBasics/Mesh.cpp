@@ -30,8 +30,6 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, unsi
     SetupMesh();
 }
 
-
-
 Mesh::~Mesh() {
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);

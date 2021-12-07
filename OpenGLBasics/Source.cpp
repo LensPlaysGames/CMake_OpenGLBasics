@@ -400,14 +400,6 @@ int main(void)
         g_Scene.MainCamera.Update(window);
 
         /* SCENE MANIPULATION */
-        // Randomize light color if 'Space' is pressed
-        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-            
-        }
-        // Set light color to white if 'C' is pressed
-        if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
-            
-        }
 
         // Move light
         glm::vec3 mainLightPositionOffset(0.0f);
@@ -424,7 +416,7 @@ int main(void)
         /* RENDERING */
         renderer.DrawScene(g_Scene);
         /* Swap front and back buffers. 
-            Screen is showing front buffer while the back buffer is being rendered to.
+        *   Screen is showing front buffer while the back buffer is being rendered to.
         *   Number of buffers can be increased with the downside of increased input latency.
         */
         glfwSwapBuffers(window);        
