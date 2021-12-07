@@ -91,5 +91,8 @@ Feel free to replace `./build` with any output directory of your choice.
 
 Once built, navigate to the build directory and open up the Visual Studio solution (be sure to open with the correct version of Visual Studio). \
 Once the solution is open, select the correct build target configuration with the dropdown at the top (default is "Debug" but "Release" has much better performance). \
-Once the target is set correctly, build the solution. This can be done quickly using `F6` or through the Build dropdown at the top. \
+Once the target is set correctly, build the solution. This can be done using `F6` or through the Build dropdown at the top. \
+Beware, this may take several minutes! I recommend getting up and stretching, using the restroom, or even just drinking some water. \
 If all goes well, you will end up with a .exe in the 'OpenGLBasics/Release' directory. Run this to run the program.
+
+If you encounter errors, submit an issue and I will do my best to help you and update this guide with any likely speed-bumps along the way.
