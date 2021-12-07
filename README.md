@@ -28,17 +28,6 @@ This may take a while, so be patient. \
 These commands should download and update all submodules if the `--recursive` tag didn't work when cloning (which it never does for me). \
 If the tag did work, nothing will change.
 
-Once common error I get is 'fatal: Needed a single revision'. \
-To solve this, I found this [StackOverflow Thread](https://stackoverflow.com/questions/38227598/git-submodule-update-init-gives-error-fatal-needed-a-single-revision-unable-t) \
-If you're not into reading, or the thread is deleted by now, you can try to run the following commands before running submodule init and submodule update once again. \
-`git submodule foreach git pull origin master`
-
-This command should try to download the submodule repository from origin master, which is the default repository branch.
-
-If for some reason, git still won't pull the submodule's repository to your machine, you can always do it yourself by cloning the repository directly into the folder. I often have to do this with GLEW for some reason ie. \
-`git clone https://github.com/Perlmint/glew-cmake` \
-Make sure to delete the directory or git will complain.
-
 To double-check the submodules are correctly initialized and updated, use the git command: \
 `git submodule status`
 
@@ -49,6 +38,20 @@ Example of correct console output: \
  `466859eeea029099db5b342a506e68d3ea3b78a7 glew-cmake (glew-1.10.0-716-g466859e)` \
  `53d86c64d709ff52886580d338d9b3b2b1f27266 glfw (3.3-505-g53d86c64)` \
  `6ad79aae3eb5bf809c30bf1168171e9e55857e45 glm (0.9.5.3-2659-g6ad79aae)`
+
+Once common error I get is 'fatal: Needed a single revision'. \
+To solve this, I found this [StackOverflow Thread](https://stackoverflow.com/questions/38227598/git-submodule-update-init-gives-error-fatal-needed-a-single-revision-unable-t) \
+If you're not into reading, or the thread is deleted by now, you can try to run the following commands before running submodule init and submodule update once again. \
+`git submodule foreach git pull origin master`
+
+This command should try to download the submodule repository from origin master, which is the default repository branch.
+
+If for some reason, git still won't pull the submodule's repository to your machine, you can always do it yourself by cloning the repository directly. \
+`git clone https://github.com/Perlmint/glew-cmake` \
+`git clone https://github.com/glfw/glfw` \
+`git clone https://github.com/g-truc/glm` \
+`git clone https://github.com/assimp/assimp` \
+Make sure to delete the existing empty directory before running the clone command or git will complain.
 
 ### Submodules:
 (in case you are having trouble cloning correctly)
