@@ -39,6 +39,7 @@ void Renderer::DrawScene(Scene scene)
         /* Draw all objects */
         for (auto& object : i.second)
         {
+            if (object == nullptr) {printf("Object is nullptr, skipping!\n"); continue; }
             /* Use GLM to calculate model matrix from object data */
             glm::mat4 translate = glm::translate(glm::mat4(1.0f), object->Position);
             glm::mat4 scale = glm::scale(glm::mat4(1.0f), object->Scale);
@@ -48,7 +49,7 @@ void Renderer::DrawScene(Scene scene)
             /* Draw all Meshes */
             for (unsigned int i = 0; i < object->ObjModel.Meshes.size(); i++) {
                 Mesh* mesh = object->ObjModel.Meshes[i];
-
+                if (mesh == nullptr) { printf("%u Mesh is nullptr on object, skipping!\n", i); continue; }
                 /* Use Mesh's Material */
                 Material* material = object->ObjModel.Materials[mesh->materialIndex];   // This would explode if a mesh had a material index that doesn't exist.
                 shader->SetFloatVector3("_Material.color", material->color);

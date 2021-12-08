@@ -1,10 +1,10 @@
 #include "FPSTimer.h"
 
 std::array<double, FPSTimer::maxDeltaTimes> FPSTimer::deltaTimes;
-unsigned int FPSTimer::frameCounter = 0;
+unsigned short int FPSTimer::frameCounter = 0;
 double FPSTimer::deltaTimesSum = 0.0;
 double FPSTimer::lastTimeFPSUpdated = 0.0;
-int FPSTimer::FPS = 0;
+unsigned short int FPSTimer::FPS = 0;
 double FPSTimer::frameTimeInMilliseconds = 0.0;
 
 void FPSTimer::AddFrame(double deltaTime) {

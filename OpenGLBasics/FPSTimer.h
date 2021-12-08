@@ -11,13 +11,13 @@ class FPSTimer
 public:
     static const unsigned int maxDeltaTimes = 55;
     static std::array<double, maxDeltaTimes> deltaTimes;
-    static unsigned int frameCounter;
+    static unsigned short int frameCounter;
     // Sum of all delta times in array (for easy average)
     static double deltaTimesSum;
     // Keep track of when the FPS values are updated for timers that want to update the values based on it.
     static double lastTimeFPSUpdated;
     // Average frames per second (FPS = maxDeltaTimes / deltaTimesSum)
-    static int FPS;
+    static unsigned short int FPS;
     // Average time it takes per frame in milliseconds (ms = (deltaTimesSum / maxDeltaTimes) * 1000)
     static double frameTimeInMilliseconds;
 

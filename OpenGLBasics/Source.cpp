@@ -60,6 +60,7 @@
 #include <stdio.h>
 #include <map>
 #include <string>
+#include <process.h>
 
 #include "Timer.h"
 #include "Renderer.h"
@@ -68,40 +69,22 @@
 
 #include <glm/gtc/matrix_transform.hpp>
 
-/* I supposedly am responsible to `delete` everything that I create with `new`
-*   I do that a lot...
-* 
-*   Occurences Found:
-*       - Shaders               in CreateShader()
-*       - Materials             in CreateObjects()
-*       - Objects               in CreateObjects()
-*       - g_Scene.MainLight
-* 
-*   Occurences Fixed:
-*       - Objects
-*       - Shaders
-*       - g_Scene.MainLight
-* 
-*   TODO: Final Fix:
-*       - Move Shader* to Material struct, then the global object map will be a map<Material*, Object*> and from there all allocated memory will be able to be freed using delete on program exit.
-*/
-
 /* WINDOW OPTIONS AND CONFIGURATION */
 const static std::string WINDOW_TITLE = "OpenGL with GLFW + GLEW";          // SPECIFY TITLE OF WINDOW IN OS
 const int START_MAXIMIZED = GLFW_TRUE;
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
 
-/* DIRECTORY STRUCTURE */
-
+/* DIRECTORY STRUCTURE 
+*   Changing variables here without also changing CMakeLists.txt may break things.
+*/
 // Shaders in this directory can be compiled at runtime and used to render created objects in CreateObjects()
 const static std::string SHADER_DIR = "../shaders/";                        // SPECIFY DIRECTORY TO FIND SHADERS IN
-const static std::string DEFAULT_SHADER_VERTEX = "vertex.glsl";             // SPECIFY DEFAULT GLOBAL VERTEX SHADER HERE (POSITION, SHAPE)
-const static std::string DEFAULT_SHADER_FRAGMENT = "fragment.glsl";         // SPECIFY DEFAULT GLOBAL FRAGMENT SHADER HERE (COLOR)
 
 // Models can be loaded from file in CreateObjects()
 const static std::string MODELS_DIR = "../models/";                         // SPECIFY DIRECTORY TO FIND 3D MODELS IN
 
+/* GLOBAL SCENE */
 /* Scene to be rendered by Renderer */
 Scene g_Scene(
     Camera(SCREEN_WIDTH, SCREEN_HEIGHT, glm::vec3(0.0f, 0.0f, 5.0f)), 
@@ -119,6 +102,15 @@ static glm::quat QuaternionFromEuler(int eulerX, int eulerY, int eulerZ) {
 static float Lerp(float a, float b, float t) { return ((1 - t) * a + (t * b)) / 1.0f; }
 
 static glm::vec3 Lerp(glm::vec3 a, glm::vec3 b, float t) { return glm::vec3(Lerp(a.x, b.x, t), Lerp(a.y, b.y, t), Lerp(a.z, b.z, t)); }
+
+static std::string AddCommas(std::string number) {
+    int n = number.length() - 3;
+    while (n > 0) {
+        number.insert(n, ",");
+        n -= 3;
+    }
+    return number;
+}
 #pragma endregion
 
 #pragma region GLFW
@@ -218,11 +210,13 @@ void CreateObjects() {
     /* SHADER CREATION
     *   Create Shader from files in SHADER_DIR using the following syntax:
     *       Preferred (from SHADER_DIR):    'Shader* {Shader Name} = CreateShader({Vertex Shader File Name}.c_str(), {Fragment Shader File Name}.c_str());'
-    *       From custom directory:          'Shader* {Shader Name} = new Shader(({Shader Directory} + {Vertex Shader File Name}).c_str(), ({Shader Directory} + {Vertex Shader File Name}).c_str());'
+    *       From custom directory:          'Shader* {Shader Name} = new Shader("Path/To/VertexShader.glsl", "Path/To/FragmentShader.glsl");'
+    * 
+    *   Deleting a Shader: All shaders used in the global scene will be automatically deleted on program exit.
+    *       WARNING: Creating a shader that is not used in the global scene may cause a memory leak!
     */
-    Shader* defaultShader = CreateShader(DEFAULT_SHADER_VERTEX.c_str(), DEFAULT_SHADER_FRAGMENT.c_str());
-    Shader* solid = CreateShader(DEFAULT_SHADER_VERTEX.c_str(), "fragment_solid.glsl");
-    Shader* lit = CreateShader(DEFAULT_SHADER_VERTEX.c_str(), "fragment_lit.glsl");
+    Shader* defaultShader = CreateShader("vertex.glsl", "fragment_solid.glsl");
+    Shader* lit = CreateShader("vertex.glsl", "fragment_lit.glsl");
 
     glUseProgram(defaultShader->ID);
 
@@ -315,20 +309,6 @@ void CreateObjects() {
         }
     }
 
-    /* UNLIT */
-    //g_Scene.Objects[defaultShader].push_back(new Object(cube, glm::vec3(0.0f, -2.0f, 0.0f)));
-    //g_Scene.Objects[defaultShader].push_back(new Object(cube, glm::vec3(2.0f, 0.0f, 0.0f), QuaternionFromEuler(0, 30, 0)));
-
-    //g_Scene.Objects[defaultShader].push_back(new Object(triangle, glm::vec3(0.0f, -4.0f, 0.0f)));
-    //g_Scene.Objects[defaultShader].push_back(new Object(square, glm::vec3(0.0f, -5.0f, 0.0f)));
-
-    //g_Scene.Objects[defaultShader].push_back(new Object(motopig, glm::vec3(-5.0f, 2.0f, 2.0f), QuaternionFromEuler(0, 90, 90), glm::vec3(0.2f)));
-
-    //g_Scene.Objects[solid].push_back(new Object(triangle, glm::vec3(-1.0f, -4.0f, 0.0f)));
-    //g_Scene.Objects[solid].push_back(new Object(square, glm::vec3(-1.0f, -5.0f, 0.0f)));
-
-    //g_Scene.Objects[solid].push_back(new Object(motopig, glm::vec3(0.0f, 2.0f, 2.0f), QuaternionFromEuler(0, 90, 90), glm::vec3(0.2f)));
-
     /* LIT */
     g_Scene.Objects[lit].push_back(new Object(cube));
 
@@ -373,7 +353,82 @@ void CreateObjects() {
     // Create an Object at the Light's current position and assign it to the Main Light's Object.
     g_Scene.MainLight->Obj = new Object(cube, g_Scene.MainLight->ObjLight->position, glm::vec3(0.25f));
     // Use solid shading.
-    g_Scene.MainLight->ObjShader = solid;
+    g_Scene.MainLight->ObjShader = defaultShader;
+}
+
+void DeleteScene(Scene scene) {
+#pragma region Addition
+    /* ADDITION
+    *   Keep track of all unique memory allocated within the program.
+    *   The memory storing the data in the following sets will be freed in the DELETION stage.
+    */
+
+    // Using a std::set for no duplicates! Trying to delete something twice doesn't go too well.
+    std::set<Mesh*> meshes;
+    std::set<Material*> materials;
+    std::set<Shader*> shaders;
+    std::set<Object*> objects;
+
+    /* Global Scene Objects */
+    for (auto& i : scene.Objects) {
+        for (auto& object : i.second)
+        {
+            // Add Object's Model's Meshes to set of Meshes to delete.
+            for (auto& mesh : object->ObjModel.Meshes) {
+                meshes.insert(mesh);
+            }
+
+            // Add Object's Model's Materials to set of Materials to delete.
+            for (auto& material : object->ObjModel.Materials) {
+                materials.insert(material);
+            }
+
+            // Add Object itself to set of Objects to delete.
+            objects.insert(object);
+        }
+
+        // Add Shader to set of Shaders to delete.
+        shaders.insert(i.first);
+    }
+
+    /* g_Scene.MainLight deletion */
+    for (auto& mesh : scene.MainLight->Obj->ObjModel.Meshes) {
+        meshes.insert(mesh);
+    }
+    for (auto& material : scene.MainLight->Obj->ObjModel.Materials) {
+        materials.insert(material);
+    }
+    objects.insert(scene.MainLight->Obj);
+    shaders.insert(scene.MainLight->ObjShader);
+#pragma endregion
+
+#pragma region Deletion
+    /* DELETION */
+
+    /* Free memory allocated to 3D Models */
+    std::set<Mesh*>::iterator MESH_iterator;
+    for (MESH_iterator = meshes.begin(); MESH_iterator != meshes.end(); MESH_iterator++) {
+        delete* MESH_iterator;
+    }
+
+    /* Free memory allocated to Materials */
+    std::set<Material*>::iterator MAT_iterator;
+    for (MAT_iterator = materials.begin(); MAT_iterator != materials.end(); MAT_iterator++) {
+        delete* MAT_iterator;
+    }
+
+    /* Free memory allocated to Shaders */
+    std::set<Shader*>::iterator SHADER_iterator;
+    for (SHADER_iterator = shaders.begin(); SHADER_iterator != shaders.end(); SHADER_iterator++) {
+        delete* SHADER_iterator;
+    }
+
+    /* Free memory allocated to Objects */
+    std::set<Object*>::iterator OBJ_iterator;
+    for (OBJ_iterator = objects.begin(); OBJ_iterator != objects.end(); OBJ_iterator++) {
+        delete* OBJ_iterator;
+    }
+#pragma endregion
 }
 
 const double FPSInTitleUpdatesPerSecond = 2.0;
@@ -432,7 +487,9 @@ int main(void)
         g_Scene.MainLight->MoveLight(initialLightPosition + mainLightPositionOffset);
 
         /* RENDERING */
+        // Draw entire Scene to the screen.
         renderer.DrawScene(g_Scene);
+
         /* Swap front and back buffers. 
         *   Screen is showing front buffer while the back buffer is being rendered to.
         *   Number of buffers can be increased with the downside of increased input latency.
@@ -449,18 +506,8 @@ int main(void)
         Timer::previousTime = Timer::time;
     }
 
-    /* Free memory allocated to Objects and Shaders */
-    for (auto& i : g_Scene.Objects) {
-        Shader* shader = i.first;
-        for(auto& object : i.second)
-        {
-            delete object;
-        }   
-        delete shader;
-    }
-
-    /* Free memory allocated to main light */
-    delete g_Scene.MainLight;
+    /* Free memory allocated to storing global Scene data */
+    DeleteScene(g_Scene);
 
 #pragma region Print End Statistics
     int width = 0;
@@ -468,20 +515,15 @@ int main(void)
     int* width_ptr = &width;
     int* height_ptr = &height;
     glfwGetWindowSize(window, width_ptr, height_ptr);
-    int numberOfPixels = width * height;
+    unsigned int numberOfPixels = width * height;
 
     const std::string closeMSG = "Statistics on Application Close:\n";
-    std::string pixelsPerSecond = std::to_string(FPSTimer::FPS * numberOfPixels);
-    int n = pixelsPerSecond.length() - 3;
-    while (n > 0) {
-        pixelsPerSecond.insert(n, ",");
-        n -= 3;
-    }
+    
     printf(("\n"
            + closeMSG
            + "    AVG FPS: " + std::to_string(FPSTimer::FPS) + "fps\n"
            + "    AVG FRAME TIME: " + std::to_string(FPSTimer::frameTimeInMilliseconds) + "ms\n"
-           + "    AVG PIXELS PROCESSED PER SECOND: " + pixelsPerSecond + " pixels\n"
+           + "    AVG PIXELS PROCESSED PER SECOND: " + AddCommas(std::to_string((unsigned long long int)(FPSTimer::FPS * numberOfPixels))) + " pixels\n"
            + "\n").c_str());
 #pragma endregion
 
