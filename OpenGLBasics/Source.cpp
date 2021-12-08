@@ -176,9 +176,10 @@ GLFWwindow* InitializeWindow() {
 
     glfwWindowHint(GLFW_MAXIMIZED, START_MAXIMIZED);
 
-    /* Force OpenGL 3.30 for cross-platform compatibility */
+    /* Force OpenGL 3.30 core for cross-platform compatibility */
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     /* Create a windowed mode window and its OpenGL context */
     GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE.c_str(), NULL, NULL);
