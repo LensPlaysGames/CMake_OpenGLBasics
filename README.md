@@ -15,6 +15,16 @@ Position, rotate, and scale objects for nearly **endless fun!** \
 |Space|Randomize Light Color|
 |C|Reset Light Color|
 
+# Running the Program
+To run the program, first navigate to the releases tab or [click here](https://github.com/LensPlaysGames/CMake_OpenGLBasics/releases). \
+Identify a built version of the program for your OS, and download the compressed archive.
+
+Once downloaded, extract the archive to a folder and run the program how you normally would on your OS.
+
+For example, On Windows (Win64) this entails navigating to the `Releases` directory and running the `.exe` within it.
+
+If a release has not been built for your OS, you can always [build it yourself](https://github.com/LensPlaysGames/CMake_OpenGLBasics#building-the-program).
+
 ## Building the Program
 This will outline how to build the project using command line. \
 If you are using a GUI, it's likely not all of the functionality is present (for example in GitHub Desktop, submodule functionality is not supported, so command line is necessary).
