@@ -91,11 +91,17 @@ CMake is a cross-platform, [open-source](https://github.com/Kitware/CMake) build
 For full documentation visit the [CMake Home Page](https://cmake.org/) and the [CMake Documentation Page](https://cmake.org/documentation). \
 The [CMake Community Wiki](https://gitlab.kitware.com/cmake/community/-/wikis/home) also references useful guides and recipes.
 
-Included is a `build_cmake.bat` file that can be ran to build the program using the default CMake generator for your system. \
+Included is a `build_cmake.bat` file that can be ran to build the program using the default CMake generator for your system.
+
 For Windows, the default generator is Visual Studio 17 2022, which is exactly what I use. \
 That means to generate a solution, all one has to do is double click the `.bat`. \
-From there, you can build the solution in Visual Studio to get a `.exe` to run. \
-You could also edit the `build_cmake.bat` to use any generator you wish with the `-G "Name of Generator"` option.
+From there, you can build the solution in Visual Studio to get a `.exe` to run.
+
+For Linux, the default generator is Makefile, or just Make. \
+That means, once you run `sh build_cmake.bat`, navigate to the build directory and run `make`. \
+This will generate a file that may be executed successfully. 
+
+For further instructions, find your specific platform/generator below!
 
 First, determine which build system generator of CMake you would like to use. \
 Build system generators are **platform specific**, so be sure to choose the correct one for your environment. \
@@ -118,8 +124,59 @@ Once the target is set correctly, build the solution. This can be done using `F6
 Beware, this may take several minutes! I recommend getting up and stretching, using the restroom, or even just drinking some water. \
 If all goes well, you will end up with a .exe in the 'OpenGLBasics/Release' directory. Run this to run the program.
 
-### Errors I've encountered while building:
-**Error:** `the command setlocal(` or some variation: \
-**Solution:** Assimp dynamic library 'assimp-vc143-mt.dll' is not copying correctly. Ensure Path/To/Repository/dlls/assimp-vc143-mt.dll exists and is valid.
+### For Linux (using Make):
+Ensure you have updated and upgraded all packages by running \
+`apt update` \
+then \
+`apt upgrade`
+
+Get the latest drivers for your hardware. Seriously, it matters!!!
+
+Linux doesn't natively support OpenGL, so a third-party library is necessary. This guide will use the most common solution: [Mesa](https://mesa3d.org/)
+
+Ensure the following Debian packages are installed!
+- build-essential
+- mesa-common-dev
+- mesa-utils
+- libgl-dev
+- libglew-dev
+- libglm-dev
+- libglx-dev
+- libopengl-dev
+- libx11-dev
+
+One-liner command: \
+`apt install build-essential mesa-common-dev mesa-utils libgl-dev libglew-dev libglm-dev libglx-dev libopengl-dev libx11-dev`
+
+To ensure the correct version of OpenGL is supported (V3.30 or later), run the following command: \
+`glxinfo | grep version` \
+'OpenGl core profile version string' is what you are looking for, although it may be under 'GLX Max core profile version'
+
+Once all necessary packages are installed, open a terminal and navigate to the cloned repository directory (containing CMakeLists.txt) ie. \
+`cd Path/To/Where/You/Cloned/The/Repository`
+
+Once in the correct directory, generate a Makefile using the following command: \
+`cmake -G "Unix Makefiles" -S . -B ./build` \
+or just \
+`sh build_cmake.bat`
+
+After CMake is finished building the Makefile, navigate to the CMake build directory and then make the Makefile: \
+`cd build` \
+`make`
+
+This may take quite some time, especially the first time (however subsequent builds' speed will be greatly increased).
+
+To run the program, execute the generated `CMake_OpenGLBasics` file in the OpenGLBasics directory. \
+`./CMake_OpenGLBasics`
+
+**Errors I've encountered:** \
+**Error:** "GLX: Failed to create context: GLXBadFBConfig" \
+**Solution:** Install required mesa & x11 packages.
+
+**Error:** "OpenGL Version(null)" \
+**Solution:** Execute with mesa gl version override \
+`MESA_GL_VERSION_OVERRIDE=3.3 ./CMake_OpenGLBasics`
+
+---
 
 If you encounter errors, submit an issue and I will do my best to help you and update this guide with any likely speed-bumps along the way.
