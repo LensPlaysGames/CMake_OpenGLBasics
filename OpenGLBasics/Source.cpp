@@ -66,6 +66,7 @@
 #include "Renderer.h"
 #include "Primitives.h"
 #include "FPSTimer.h"
+#include "ProgramMemory.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -74,6 +75,12 @@ const static std::string WINDOW_TITLE = "OpenGL with GLFW + GLEW";          // S
 const int START_MAXIMIZED = GLFW_TRUE;
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
+
+/* WINDOW TITLE UPDATES CONFIGURATION 
+*   The window title displays values like frame time, fps, and RAM usage all in real time
+*/
+const double TitleUpdatesPerSecond = 0.5;
+double TitleLastTimeUpdated = 0.0;
 
 /* DIRECTORY STRUCTURE 
 *   Changing variables here without also changing CMakeLists.txt may break things.
@@ -431,12 +438,22 @@ void DeleteScene(Scene scene) {
 #pragma endregion
 }
 
-const double FPSInTitleUpdatesPerSecond = 2.0;
-void FpsTitleTimer(GLFWwindow* window) {
-    FPSTimer::AddFrame(Timer::deltaTime);
-    if (Timer::time - FPSTimer::lastTimeFPSUpdated >= 1.0 / FPSInTitleUpdatesPerSecond) {
+void UpdateTitle(GLFWwindow* window) {
+    if (Timer::time - TitleLastTimeUpdated >= (1.0 / TitleUpdatesPerSecond)) {
         FPSTimer::UpdateValues(Timer::time);
-        glfwSetWindowTitle(window, (WINDOW_TITLE + " | " + std::to_string(FPSTimer::frameTimeInMilliseconds) + "ms" + " | " + std::to_string(FPSTimer::FPS) + "fps").c_str());
+
+        /* Format RAM Usage from bytes to megabytes */
+        char buffer[50];
+        std::snprintf(buffer, 50, "%.1f", (float)(getCurrentRSS() / 1000 / 1000));
+
+        // Set window title to initial window title + frame time + fps + RAM usage
+        glfwSetWindowTitle(window, 
+        (WINDOW_TITLE 
+            + " | " + std::to_string(FPSTimer::frameTimeInMilliseconds) + "ms" 
+            + " | " + std::to_string(FPSTimer::FPS) + "fps" 
+            + " | " + buffer + "MB").c_str());
+
+        TitleLastTimeUpdated = Timer::time;
     }
 }
 
@@ -448,7 +465,7 @@ int main(void)
     printf("OpenGL Version %s\n", glGetString(GL_VERSION));
 
     /* Object creation - Populate global scene objectMap with objects 
-    *   Add and/or change this function to change the scene arrangement!
+    *   Add to and/or change this function to change the scene arrangement!
     */
     CreateObjects();
 
@@ -468,22 +485,19 @@ int main(void)
     {
         /* TIME */
         Timer::Update(glfwGetTime());
+        FPSTimer::AddFrame(Timer::deltaTime);
 
         /* CAMERA */
         g_Scene.MainCamera.Update(window);
 
         /* SCENE MANIPULATION */
 
-        // Move light
-        glm::vec3 mainLightPositionOffset(0.0f);
-
         /* Move light in XZ-axis circle over time */
-        float radius = 2.0f;
-        float speed = 1.0f;
-        float scaleX = 10.0f;
-        float scaleZ = 1.0f;
-        mainLightPositionOffset = glm::vec3(scaleX * radius * sin(Timer::time * speed), 0.0f, scaleZ * radius * cos(Timer::time * speed));
-
+        const float radius = 2.0f;
+        const float speed = 1.0f;
+        const float scaleX = 10.0f;
+        const float scaleZ = 1.0f;
+        glm::vec3 mainLightPositionOffset = glm::vec3(scaleX * radius * sin(Timer::time * speed), 0.0f, scaleZ * radius * cos(Timer::time * speed));
         g_Scene.MainLight->MoveLight(initialLightPosition + mainLightPositionOffset);
 
         /* RENDERING */
@@ -494,10 +508,10 @@ int main(void)
         *   Screen is showing front buffer while the back buffer is being rendered to.
         *   Number of buffers can be increased with the downside of increased input latency.
         */
-        glfwSwapBuffers(window);        
+        glfwSwapBuffers(window);
 
-        /* FPS and Frame Time in ms in Window Title */
-        FpsTitleTimer(window);
+        /* Update Title with FPS, frame time, and RAM usage */
+        UpdateTitle(window);
 
         /* Poll for and process events */
         glfwPollEvents();

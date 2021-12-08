@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.8)
 
 set(SOURCE_FILES "Camera.cpp" "FPSTimer.cpp" "Mesh.cpp" "Model.cpp" "Object.cpp" "Renderer.cpp" "Shader.cpp" "Timer.cpp" "Source.cpp")
-set(HEADER_FILES "Primitives.h" "Camera.h" "FPSTimer.h" "Mesh.h" "Model.h" "Object.h" "Renderer.h" "Shader.h" "Timer.h")
+set(HEADER_FILES "Primitives.h" "Camera.h" "FPSTimer.h" "Mesh.h" "Model.h" "Object.h" "Renderer.h" "Shader.h" "Timer.h" "ProgramMemory.h")
 
 # Add source files to this project's executable.
 add_executable (CMake_OpenGLBasics ${HEADER_FILES} ${SOURCE_FILES})
