@@ -60,7 +60,6 @@
 #include <stdio.h>
 #include <map>
 #include <string>
-#include <process.h>
 
 #include "Timer.h"
 #include "Renderer.h"
