@@ -1,6 +1,10 @@
 #include "Object.h"
 
-Object::Object(){}
+Object::Object(){
+    Position = glm::vec3(0.0f);
+    Rotation = glm::quat();
+    Scale = glm::vec3(1.0f);
+}
 
 Object::Object(Object* object)
 {
