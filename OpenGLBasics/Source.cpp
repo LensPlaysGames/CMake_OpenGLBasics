@@ -550,12 +550,9 @@ int main(void)
             ImGui::SetWindowCollapsed(true, ImGuiCond_Once);
             /* Light Configuration */
             ImGui::DragFloat3("Light Origin", &initialLightPosition[0], 0.1f);
-            if (ImGui::ColorEdit3("Light Color", &g_Scene.MainLight->ObjLight->color[0])) {
-                g_Scene.MainLight->SetColor(g_Scene.MainLight->ObjLight->color);
-            }
-            if (ImGui::Button("Randomize Light Color")) {
-                g_Scene.MainLight->SetColor(GetRandomVec3(1000.0f));
-            }
+            //ImGui::DragFloat("Light Intensity", &g_Scene.MainLight->ObjLight->intensity, 0.05f);   // POINT LIGHT ONLY
+            if (ImGui::ColorEdit3("Light Color", &g_Scene.MainLight->ObjLight->color[0])) { g_Scene.MainLight->SetColor(g_Scene.MainLight->ObjLight->color); }
+            if (ImGui::Button("Randomize Light Color")) { g_Scene.MainLight->SetColor(GetRandomVec3(1000.0f)); }
             ImGui::Checkbox("Light Movement", &animateLightMovement);
             if (animateLightMovement) {
                 ImGui::DragFloat("Orbit Radius", &radius, 0.1f, 0.001f, 1000.0f, "%.2f", 64.0f);

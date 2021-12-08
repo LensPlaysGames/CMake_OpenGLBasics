@@ -10,6 +10,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <unordered_map>
 
 class Shader
 {
@@ -37,6 +38,10 @@ public:
     void SetFloatMatrix2(const std::string& name, glm::mat2 value) const;
     void SetFloatMatrix3(const std::string& name, glm::mat3 value) const;
     void SetFloatMatrix4(const std::string& name, glm::mat4 value) const;
+
+private:
+    GLint GetUniformLocation(const std::string& name) const;
+    mutable std::unordered_map<std::string, GLint> uniformLocationsCache;
 };
 
 #endif

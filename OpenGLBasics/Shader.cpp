@@ -74,41 +74,53 @@ void Shader::Use() {
     glUseProgram(ID);
 }
 
+GLint Shader::GetUniformLocation(const std::string& name) const
+{
+    if (uniformLocationsCache.find(name) != uniformLocationsCache.end()) {
+        return uniformLocationsCache[name];
+    }
+    else {
+        GLint location = glGetUniformLocation(ID, name.c_str());
+        uniformLocationsCache[name] = location;
+        return location;
+    }
+}
+
 void Shader::SetBool(const std::string& name, bool value) const
 {
-    glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
+    glUniform1i(GetUniformLocation(name.c_str()), (int)value);
 }
 
 void Shader::SetInt(const std::string& name, int value) const
 {
-    glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
+    glUniform1i(GetUniformLocation(name.c_str()), value);
 }
 
 void Shader::SetFloat(const std::string& name, float value) const
 {
-    glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
+    glUniform1f(GetUniformLocation(name.c_str()), value);
 }
 
 void Shader::SetFloatVector2(const std::string& name, glm::vec2 value) const {
-    glUniform2fv(glGetUniformLocation(ID, name.c_str()), 1, glm::value_ptr(value));
+    glUniform2fv(GetUniformLocation(name.c_str()), 1, glm::value_ptr(value));
 }
 void Shader::SetFloatVector2(const std::string& name, GLfloat value0, GLfloat value1) const {
-    glUniform2fv(glGetUniformLocation(ID, name.c_str()), 1, glm::value_ptr(glm::vec2(value0, value1)));
+    glUniform2fv(GetUniformLocation(name.c_str()), 1, glm::value_ptr(glm::vec2(value0, value1)));
 }
 
 void Shader::SetFloatVector3(const std::string& name, glm::vec3 value) const {
-    glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, glm::value_ptr(value));
+    glUniform3fv(GetUniformLocation(name.c_str()), 1, glm::value_ptr(value));
 }
 void Shader::SetFloatVector3(const std::string& name, GLfloat value0, GLfloat value1, GLfloat value2) const {
-    glUniform3fv(glGetUniformLocation(ID, name.c_str()), 1, glm::value_ptr(glm::vec3(value0, value1, value2)));
+    glUniform3fv(GetUniformLocation(name.c_str()), 1, glm::value_ptr(glm::vec3(value0, value1, value2)));
 }
 
 void Shader::SetFloatMatrix2(const std::string& name, glm::mat2 value) const {
-    glUniformMatrix2fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
+    glUniformMatrix2fv(GetUniformLocation(name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
 }
 void Shader::SetFloatMatrix3(const std::string& name, glm::mat3 value) const {
-    glUniformMatrix3fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
+    glUniformMatrix3fv(GetUniformLocation(name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
 }
 void Shader::SetFloatMatrix4(const std::string& name, glm::mat4 value) const {
-    glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
+    glUniformMatrix4fv(GetUniformLocation(name.c_str()), 1, GL_FALSE, glm::value_ptr(value));
 }
