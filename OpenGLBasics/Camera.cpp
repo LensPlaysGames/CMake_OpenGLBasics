@@ -51,7 +51,7 @@ void Camera::Inputs(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) { Position -= Speed * Up; }
 
     // Rotation (Trigonometry is greater than 1 Rylan brain).
-    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
         double xPos = 0.0, yPos = 0.0, xDiff = 0.0, yDiff = 0.0;

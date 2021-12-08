@@ -1,20 +1,21 @@
 /*
 * TODO:
-*   - Placing objects at runtime (Simple example: Press space to place cube at camera position).
+*   - Keep track of number of total objects in scene and stuff like that.
+*   - Think about how much you hate coding GUI
+*   - Decide whether Scene struct should be made of pointers or made of data
+*   - Create logger class that will log all throughput to a file
 *   - InstancedObject abstraction for something that will be drawn a lot of times (will have a model, list of transform struct with positions, rotations, scales))
 *   - Update lighting system (renderer + shader) to work with multiple lights, multiple types of lights
 *   - Swap Blinn-Phong shading for PBR lighting (metallic, roughness, etc)
 *   - Define more primitives: sphere, capsule, cylinder, torus
-*   - Fix movement speed and sensitivity changing based on frame-rate
 *   - Add cubemap skybox functionality
 *   - Abstract Transform struct
-*   - Better printf formatting (tabulate or another external header?)
+*   - Better terminal formatting (tabulate or another external header?)
 *   - Update camera inputs from conditional to event-based
 *   - Abstract object map to it's own class with functions to add and remove objects, etc
 *   - Add colinear check to GetNormal() 
 *   - Implement load timer for timing how long it takes to load models
 *   - Make object creation asynchronous (so objects are rendered as they are added to the object map vs brick the program until all of them are)
-*   - Make it possible to render to specific window.
 *   - Add texture ability
 */
 
@@ -23,12 +24,17 @@
 * README :)
 * 
 * CONTROLS:
-*   - W     Move Forward
-*   - A     Move Left
-*   - S     Move Backward
-*   - D     Move Right
-*   - Q     Move Up
-*   - E     Move Down
+*   - W                 Move Forward
+*   - A                 Move Left
+*   - S                 Move Backward
+*   - D                 Move Right
+*   - Q                 Move Up
+*   - E                 Move Down
+*   - Space             Change Light Color
+*   - C                 Reset Light Color
+*   - Mouse Scroll      Change Camera Zoom
+*   - X                 Reset Camera Zoom
+*   - Mouse XY          Look Around
 * 
 * In CreateObjects(), find out how to:
 *   - Create and place an Object within the program:
@@ -38,7 +44,7 @@
 
 
 /* Render Pipeline Outline:
-*   A Scene has a map<Shader*, vector<Object>> Objects that are drawn every frame using the given shader.
+*   A Scene has a map<Shader*, vector<Object*>> Objects that are drawn every frame using the given shader.
 *   A Scene has a LightObject —a class holding a light, an object, and a shader— that will be drawn every frame and it's data used for lighting calculations.
 *   A Scene has a Camera MainCamera that has transformation matrices used to calculate where on the screen to draw what.
 */
@@ -61,11 +67,15 @@
 #include <map>
 #include <string>
 
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 #include "Timer.h"
 #include "Renderer.h"
 #include "Primitives.h"
 #include "FPSTimer.h"
-#include "ProgramMemory.h"
+#include "RAMTracker.h"
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -78,7 +88,7 @@ const int SCREEN_HEIGHT = 720;
 /* WINDOW TITLE UPDATES CONFIGURATION 
 *   The window title displays values like frame time, fps, and RAM usage all in real time
 */
-const double TitleUpdatesPerSecond = 0.5;
+float TitleUpdatesPerSecond = 0.5;
 double TitleLastTimeUpdated = 0.0;
 
 /* DIRECTORY STRUCTURE 
@@ -109,6 +119,10 @@ static float Lerp(float a, float b, float t) { return ((1 - t) * a + (t * b)) / 
 
 static glm::vec3 Lerp(glm::vec3 a, glm::vec3 b, float t) { return glm::vec3(Lerp(a.x, b.x, t), Lerp(a.y, b.y, t), Lerp(a.z, b.z, t)); }
 
+static glm::vec3 GetRandomVec3(float accuracy) {
+    return glm::vec3((rand() % (int)accuracy) / accuracy, (rand() % (int)accuracy) / accuracy, (rand() % (int)accuracy) / accuracy);
+}
+
 static std::string AddCommas(std::string number) {
     int n = number.length() - 3;
     while (n > 0) {
@@ -123,8 +137,7 @@ static std::string AddCommas(std::string number) {
 void OnKeyPressed(GLFWwindow* window, int key, int scancode, int action, int mods) {
     // Randomize light color if 'Space' is pressed.
     if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
-        glm::vec3 newColor = (glm::vec3((rand() % 1000) / 1000.0f, (rand() % 1000) / 1000.0f, (rand() % 1000) / 1000.0f));
-        g_Scene.MainLight->SetColor(newColor);
+        g_Scene.MainLight->SetColor(GetRandomVec3(1000.0f));
     }
     // Set light color to white if 'C' is pressed.
     else if (key == GLFW_KEY_C && action == GLFW_PRESS) {
@@ -455,11 +468,11 @@ void DeleteScene(Scene scene) {
 
 void UpdateTitle(GLFWwindow* window) {
     if (Timer::time - TitleLastTimeUpdated >= (1.0 / TitleUpdatesPerSecond)) {
+        /* Update FPS and frame time values */
         FPSTimer::UpdateValues(Timer::time);
 
-        /* Format RAM Usage from bytes to megabytes */
         char buffer[50];
-        std::snprintf(buffer, 50, "%.1f", (float)(getCurrentRSS() / 1000 / 1000));
+        std::snprintf(buffer, 50, "%.1f", (float)(RAMTracker::CurrentRAMUsage / 1000.0f / 1000.0f));
 
         // Set window title to initial window title + frame time + fps + RAM usage
         glfwSetWindowTitle(window, 
@@ -491,54 +504,147 @@ int main(void)
 
     Renderer renderer;
 
-    // Configure light
+    /* IMGUI CONFIGURATION */
+    ImGui::CreateContext();
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
+    
+    /* ImGui State */
+    // Light
+    bool animateLightMovement = true;
+    float radius = 2.0f;
+    float speed = 1.0f;
+    glm::vec2 lightMoveScale(1.0f);
+    // Stats
+    bool showStats = true;
+    bool showStatsInTitle = false;
+
+    // Initialize Light to Position.
     glm::vec3 initialLightPosition(0.0f, 10.0f, 10.0f);
     g_Scene.MainLight->MoveLight(initialLightPosition);
 
     /* Loop until the window should close */
     while (!glfwWindowShouldClose(window))
     {
-        /* TIME */
-        Timer::Update(glfwGetTime());
-        FPSTimer::AddFrame(Timer::deltaTime);
+        /* FRAME START */
+        {
+            /* TIME */
+            Timer::Update(glfwGetTime());
+            FPSTimer::AddFrame(Timer::deltaTime);
+            RAMTracker::Update();
+            RAMTracker::AddCurrentRAMValue();
 
-        /* CAMERA */
-        g_Scene.MainCamera.Update(window);
+            /* CAMERA */
+            g_Scene.MainCamera.Update(window);
+
+            // Start the Dear ImGui frame
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+        }
+
+        /* IMGUI */
+        {
+            ImGui::Begin("Main Panel!");
+            ImGui::SetWindowCollapsed(true, ImGuiCond_Once);
+            /* Light Configuration */
+            ImGui::DragFloat3("Light Origin", &initialLightPosition[0], 0.1f);
+            if (ImGui::ColorEdit3("Light Color", &g_Scene.MainLight->ObjLight->color[0])) {
+                g_Scene.MainLight->SetColor(g_Scene.MainLight->ObjLight->color);
+            }
+            if (ImGui::Button("Randomize Light Color")) {
+                g_Scene.MainLight->SetColor(GetRandomVec3(1000.0f));
+            }
+            ImGui::Checkbox("Light Movement", &animateLightMovement);
+            if (animateLightMovement) {
+                ImGui::DragFloat("Orbit Radius", &radius, 0.1f, 0.001f, 1000.0f, "%.2f", 64.0f);
+                ImGui::DragFloat("Speed", &speed, 0.05f, 0.001f, 100.0f, "%.2f", 32.0f);
+                ImGui::DragFloat2("Scale", &lightMoveScale[0], 0.05f);
+            }
+            ImGui::NewLine();
+
+            /* Framerate */
+            // Option to show/hide stats
+            ImGui::Checkbox("Show Stats", &showStats);
+            if (showStats) {
+                // Option to show stats in title as well as in GUI
+                ImGui::Checkbox("Show Stats in Title", &showStatsInTitle);
+                if (showStatsInTitle) { ImGui::SliderFloat("Title Updates per Second", &TitleUpdatesPerSecond, 0.01f, 10.0f); }
+
+                // Display frame time, frame rate, and a graph of previous frame times.
+                ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+                float frameTimesFloat[FPSTimer::maxDeltaTimes];
+                std::copy(FPSTimer::deltaTimes.begin(), FPSTimer::deltaTimes.end(), frameTimesFloat);
+                ImGui::PlotLines("Frame times", frameTimesFloat, IM_ARRAYSIZE(frameTimesFloat));
+
+                // Display RAM usage after formatting RAM Usage from bytes to megabytes
+                ImGui::Text("RAM Usage: ");
+                ImGui::Text("Current: %.3fMB", (float)(RAMTracker::CurrentRAMUsage / 1000.0f / 1000.0f));
+                ImGui::Text("Peak: %.3fMB", (float)(RAMTracker::PeakRAMUsage / 1000.0f / 1000.0f));
+                float RAMValuesFloat[RAMTracker::maxRAMUsageValues];
+                std::copy(RAMTracker::RAMValues.begin(), RAMTracker::RAMValues.end(), RAMValuesFloat);
+                for (auto& i : RAMValuesFloat)
+                    i = i / 1000.0f / 1000.0f;
+                ImGui::PlotLines("RAM Usage", RAMValuesFloat, IM_ARRAYSIZE(RAMValuesFloat));
+            }
+
+            ImGui::NewLine();
+
+            // Place Cube with Button
+            if (ImGui::Button("Place Cube")) {
+                for (auto& i : g_Scene.Objects)
+                {
+                    g_Scene.Objects[i.first].push_back(new Object(Primitives::Cube(), g_Scene.MainCamera.Position));
+                    break;
+                }
+            }
+
+            ImGui::End();
+        }
 
         /* SCENE MANIPULATION */
-
-        /* Move light in XZ-axis circle over time */
-        const float radius = 2.0f;
-        const float speed = 1.0f;
-        const float scaleX = 10.0f;
-        const float scaleZ = 1.0f;
-        glm::vec3 mainLightPositionOffset = glm::vec3(scaleX * radius * sin(Timer::time * speed), 0.0f, scaleZ * radius * cos(Timer::time * speed));
-        g_Scene.MainLight->MoveLight(initialLightPosition + mainLightPositionOffset);
+        {
+            /* Move light in XZ-axis circle over time */
+            if (animateLightMovement) {
+                glm::vec3 mainLightPositionOffset = glm::vec3(lightMoveScale.x * radius * sin(Timer::time * speed), 0.0f, lightMoveScale.y * radius * cos(Timer::time * speed));
+                g_Scene.MainLight->MoveLight(initialLightPosition + mainLightPositionOffset);
+            } else g_Scene.MainLight->MoveLight(initialLightPosition);
+        }
 
         /* RENDERING */
+        {
         // Draw entire Scene to the screen.
         renderer.DrawScene(g_Scene);
+
+        /* Render ImGui*/
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         /* Swap front and back buffers. 
         *   Screen is showing front buffer while the back buffer is being rendered to.
         *   Number of buffers can be increased with the downside of increased input latency.
         */
         glfwSwapBuffers(window);
+        }
 
-        /* Update Title with FPS, frame time, and RAM usage */
-        UpdateTitle(window);
+        /* FRAME END */
+        {
+            /* Update Title with FPS, frame time, and RAM usage */
+            if (showStatsInTitle) {UpdateTitle(window); }
+            else glfwSetWindowTitle(window, WINDOW_TITLE.c_str());
 
-        /* Poll for and process events */
-        glfwPollEvents();
+            /* Poll for and process events */
+            glfwPollEvents();
 
-        /* Set previous frame time to current frame time for next frame */
-        Timer::previousTime = Timer::time;
+            /* Set previous frame time to current frame time for next frame */
+            Timer::previousTime = Timer::time;
+        }
     }
 
-    /* Free memory allocated to storing global Scene data */
-    DeleteScene(g_Scene);
-
 #pragma region Print End Statistics
+    FPSTimer::UpdateValues(Timer::time);
+
     int width = 0;
     int height = 0;
     int* width_ptr = &width;
@@ -547,7 +653,6 @@ int main(void)
     unsigned int numberOfPixels = width * height;
 
     const std::string closeMSG = "Statistics on Application Close:\n";
-    
     printf(("\n"
            + closeMSG
            + "    AVG FPS: " + std::to_string(FPSTimer::FPS) + "fps\n"
@@ -555,6 +660,14 @@ int main(void)
            + "    AVG PIXELS PROCESSED PER SECOND: " + AddCommas(std::to_string((unsigned long long int)(FPSTimer::FPS * numberOfPixels))) + " pixels\n"
            + "\n").c_str());
 #pragma endregion
+
+    /* Free memory allocated to storing global Scene data */
+    DeleteScene(g_Scene);
+
+    /* Cleanup Dear ImGui */
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
     glfwDestroyWindow(window);
 

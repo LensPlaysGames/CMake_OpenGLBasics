@@ -1,12 +1,42 @@
 cmake_minimum_required (VERSION 3.8)
 
-set(SOURCE_FILES "Camera.cpp" "FPSTimer.cpp" "Mesh.cpp" "Model.cpp" "Object.cpp" "Renderer.cpp" "Shader.cpp" "Timer.cpp" "Source.cpp")
-set(HEADER_FILES "Primitives.h" "Camera.h" "FPSTimer.h" "Mesh.h" "Model.h" "Object.h" "Renderer.h" "Shader.h" "Timer.h" "ProgramMemory.h")
+set(SOURCE_FILES 
+    "Camera.cpp" 
+    "FPSTimer.cpp" 
+    "Mesh.cpp" 
+    "Model.cpp" 
+    "Object.cpp" 
+    "Renderer.cpp" 
+    "Shader.cpp" 
+    "Timer.cpp" 
+    "Source.cpp" 
+    "../imgui/imgui.cpp" 
+    "../imgui/imgui_demo.cpp"
+    "../imgui/imgui_draw.cpp" 
+    "../imgui/imgui_impl_glfw.cpp"
+    "../imgui/imgui_impl_opengl3.cpp"
+    "../imgui/imgui_tables.cpp"
+    "../imgui/imgui_widgets.cpp"
+ "RAMTracker.cpp")
+
+set(HEADER_FILES 
+    "Primitives.h" 
+    "Camera.h" 
+    "FPSTimer.h" 
+    "Mesh.h" 
+    "Model.h" 
+    "Object.h" 
+    "Renderer.h" 
+    "Shader.h" 
+    "Timer.h" 
+    "ProgramMemory.h"
+ "RAMTracker.h")
 
 # Add source files to this project's executable.
 add_executable (CMake_OpenGLBasics ${HEADER_FILES} ${SOURCE_FILES})
 
 # Include necessary headers
+target_include_directories(CMake_OpenGLBasics PUBLIC ${CMAKE_SOURCE_DIR}/imgui/)
 target_include_directories(CMake_OpenGLBasics PUBLIC ${CMAKE_SOURCE_DIR}/glm)
 target_include_directories(CMake_OpenGLBasics PUBLIC ${CMAKE_SOURCE_DIR}/glfw/include)
 target_include_directories(CMake_OpenGLBasics PUBLIC ${CMAKE_SOURCE_DIR}/glew-cmake/include)
