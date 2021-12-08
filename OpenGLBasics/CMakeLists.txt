@@ -17,7 +17,8 @@ set(SOURCE_FILES
     "../imgui/imgui_impl_opengl3.cpp"
     "../imgui/imgui_tables.cpp"
     "../imgui/imgui_widgets.cpp"
- "RAMTracker.cpp")
+    "RAMTracker.cpp"
+)
 
 set(HEADER_FILES 
     "Primitives.h" 
@@ -30,7 +31,8 @@ set(HEADER_FILES
     "Shader.h" 
     "Timer.h" 
     "ProgramMemory.h"
- "RAMTracker.h")
+    "RAMTracker.h"
+)
 
 # Add source files to this project's executable.
 add_executable (CMake_OpenGLBasics ${HEADER_FILES} ${SOURCE_FILES})

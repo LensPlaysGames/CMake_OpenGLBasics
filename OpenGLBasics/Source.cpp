@@ -555,8 +555,8 @@ int main(void)
             if (ImGui::Button("Randomize Light Color")) { g_Scene.MainLight->SetColor(GetRandomVec3(1000.0f)); }
             ImGui::Checkbox("Light Movement", &animateLightMovement);
             if (animateLightMovement) {
-                ImGui::DragFloat("Orbit Radius", &radius, 0.1f, 0.001f, 1000.0f, "%.2f", 64.0f);
-                ImGui::DragFloat("Speed", &speed, 0.05f, 0.001f, 100.0f, "%.2f", 32.0f);
+                ImGui::DragFloat("Orbit Radius", &radius, 0.1f, 0.001f, 1000.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
+                ImGui::DragFloat("Speed", &speed, 0.05f, 0.001f, 100.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
                 ImGui::DragFloat2("Scale", &lightMoveScale[0], 0.05f);
             }
             ImGui::NewLine();
