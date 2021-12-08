@@ -1,4 +1,4 @@
-#version 460 core
+#version 330 core
 
 // layout refers to where in the buffer to get the data based on location + stride.
 layout (location = 0) in vec3 aPosition;

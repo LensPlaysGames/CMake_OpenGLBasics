@@ -1,4 +1,4 @@
-#version 460 core
+#version 330 core
 
 float near = 0.1;
 float far = 500.0;
