@@ -14,6 +14,8 @@ Position, rotate, and scale objects for nearly **endless fun!** \
 |L Shift|Move Faster|
 |Space|Randomize Light Color|
 |C|Reset Light Color|
+|Mouse Scroll|Camera Zoom|
+|X|Reset Camera Zoom|
 
 # Running the Program
 To run the program, first navigate to the releases tab or [click here](https://github.com/LensPlaysGames/CMake_OpenGLBasics/releases). \

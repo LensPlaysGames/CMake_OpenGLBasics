@@ -14,16 +14,23 @@ class Camera
         const glm::vec3 g_UP = glm::vec3(0.0f, 1.0f, 0.0f);
         const glm::vec3 g_RIGHT = glm::vec3(1.0f, 0.0f, 0.0f);
 
+
         // Transformation Matrices
         glm::mat4 view = glm::mat4(1.0f);
         glm::mat4 projection = glm::mat4(1.0f);
 
         // Camera settings (static).
-        const float MaxVerticalAngle = 89.0f;
         const float InitialSpeed = 2.5f;
+        const float MaxVerticalAngle = 89.0f;
+        const float StartFOVDegrees = 75.0f;
+        const float MinFOVRadians = 0.25f;
+        const float MaxFOVRadians = 2.1f;
+        const float NearPlane = 0.01f;
+        const float FarPlane = 500.0f;
 
         // Camera settings (dynamic).
-        float Sensitivity = 25.0f;
+        float ZoomSensitivity = 5.0f;
+        float LookSensitivity = 25.0f;
         float Speed = InitialSpeed;
 
         glm::vec3 Position = glm::vec3(0.0f, 0.0f, 5.0f);
@@ -49,6 +56,13 @@ class Camera
         void Inputs(GLFWwindow* window);
 
         void UpdateScreenSize(int width, int height);
+
+        void ChangeFOV(float FOVChangeInDegrees);
+
+        void ResetFOV();
+
+    private:
+        float FOV = glm::radians(StartFOVDegrees);
 };
 
 #endif

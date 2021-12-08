@@ -13,7 +13,7 @@ Camera::Camera(int width, int height, glm::vec3 position) {
 
 void Camera::Update(GLFWwindow* window) {
     Inputs(window);
-    UpdateMatrices(glm::radians(75.0f), 0.01f, 500.0f);
+    UpdateMatrices(FOV, NearPlane, FarPlane);
 }
 
 void Camera::UpdateMatrices(float FOVDeg, float nearPlane, float farPlane) {
@@ -26,6 +26,14 @@ void Camera::UpdateScreenSize(int width, int height){
     Width = width;
     Height = height;
 }
+
+void Camera::ChangeFOV(float FOVChangeInDegrees)
+{
+    FOV += ZoomSensitivity * glm::radians(FOVChangeInDegrees);
+    FOV = std::max(MinFOVRadians, std::min(FOV, MaxFOVRadians));
+}
+
+void Camera::ResetFOV() { FOV = glm::radians(StartFOVDegrees); }
 
 /* Gather inputs using GLFW and then move accordingly.
 *   TODO: Change to event based where when key is pressed the event calls an action using glfwSetKeyCallback()
@@ -56,8 +64,8 @@ void Camera::Inputs(GLFWwindow* window) {
         else {
             // Get mouse difference in position from last frame.
             glfwGetCursorPos(window, &xPos, &yPos);
-            xDiff = Timer::deltaTime * Sensitivity * (xPos - LastMousePos.x);
-            yDiff = Timer::deltaTime * Sensitivity * (yPos - LastMousePos.y);
+            xDiff = Timer::deltaTime * LookSensitivity * (xPos - LastMousePos.x);
+            yDiff = Timer::deltaTime * LookSensitivity * (yPos - LastMousePos.y);
             LastMousePos = glm::vec2(xPos, yPos);
             Pitch += yDiff;
             Yaw += xDiff;

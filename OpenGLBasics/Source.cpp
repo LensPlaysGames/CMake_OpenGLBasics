@@ -124,13 +124,21 @@ void OnKeyPressed(GLFWwindow* window, int key, int scancode, int action, int mod
     // Randomize light color if 'Space' is pressed.
     if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
         glm::vec3 newColor = (glm::vec3((rand() % 1000) / 1000.0f, (rand() % 1000) / 1000.0f, (rand() % 1000) / 1000.0f));
-        newColor = Lerp(g_Scene.MainLight->ObjLight->color, newColor, 1.0f);
         g_Scene.MainLight->SetColor(newColor);
     }
     // Set light color to white if 'C' is pressed.
-    if (key == GLFW_KEY_C && action == GLFW_PRESS) {
+    else if (key == GLFW_KEY_C && action == GLFW_PRESS) {
         g_Scene.MainLight->SetColor(glm::vec3(1.0f));
     }
+    // Reset camera zoom if 'X' is pressed.
+    else if (key == GLFW_KEY_X && action == GLFW_PRESS) {
+        g_Scene.MainCamera.ResetFOV();
+    }
+}
+
+void MouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+    // Zoom camera
+    g_Scene.MainCamera.ChangeFOV(-yoffset);
 }
 
 void Exit(const char* msg) {
@@ -168,6 +176,10 @@ GLFWwindow* InitializeWindow() {
 
     glfwWindowHint(GLFW_MAXIMIZED, START_MAXIMIZED);
 
+    /* Force OpenGL 3.30 for cross-platform compatibility */
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+
     /* Create a windowed mode window and its OpenGL context */
     GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE.c_str(), NULL, NULL);
     if (!window)
@@ -194,6 +206,9 @@ GLFWwindow* InitializeWindow() {
 
     /* Attach callback to keypress to catch any user input that might need to be handled */
     glfwSetKeyCallback(window, OnKeyPressed);
+
+    /* Attach callback to mouse scroll */
+    glfwSetScrollCallback(window, MouseScrollCallback);
 
     return window;
 }
