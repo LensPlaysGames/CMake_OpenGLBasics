@@ -74,7 +74,7 @@
 #include "Timer.h"
 #include "Renderer.h"
 #include "Primitives.h"
-#include "FPSTimer.h"
+#include "FPSTracker.h"
 #include "RAMTracker.h"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -471,7 +471,7 @@ void DeleteScene(Scene scene) {
 void UpdateTitle(GLFWwindow* window) {
     if (Timer::time - TitleLastTimeUpdated >= (1.0 / TitleUpdatesPerSecond)) {
         /* Update FPS and frame time values */
-        FPSTimer::UpdateValues(Timer::time);
+        FPSTracker::Update();
 
         char buffer[50];
         std::snprintf(buffer, 50, "%.1f", (float)(RAMTracker::GetMegabytesFromBytes(RAMTracker::CurrentRAMUsage)));
@@ -479,8 +479,8 @@ void UpdateTitle(GLFWwindow* window) {
         // Set window title to initial window title + frame time + fps + RAM usage
         glfwSetWindowTitle(window, 
         (WINDOW_TITLE 
-            + " | " + std::to_string(FPSTimer::frameTimeInMilliseconds) + "ms" 
-            + " | " + std::to_string(FPSTimer::FPS) + "fps" 
+            + " | " + std::to_string(FPSTracker::frameTimeInMilliseconds) + "ms" 
+            + " | " + std::to_string(FPSTracker::FPS) + "fps" 
             + " | " + buffer + "MB").c_str());
 
         TitleLastTimeUpdated = Timer::time;
@@ -540,7 +540,10 @@ int main(void)
         {
             /* TIME */
             Timer::Update(glfwGetTime());
-            FPSTimer::AddFrame(Timer::deltaTime);
+
+            FPSTracker::AddFrame(Timer::deltaTime);
+            FPSTracker::Update();
+
             RAMTracker::Update();
             RAMTracker::AddCurrentRAMValue();
 
@@ -579,24 +582,29 @@ int main(void)
             // Option to show/hide stats
             ImGui::Checkbox("Show Stats", &showStats);
             if (showStats) {
+
                 // Option to show stats in title as well as in GUI
-                ImGui::Checkbox("Show Stats in Title", &showStatsInTitle);
+                if (ImGui::Checkbox("Show Stats in Title", &showStatsInTitle)) {
+                    // Reset window title to default when no longer showing stats in window title.
+                    if (!showStatsInTitle) { glfwSetWindowTitle(window, WINDOW_TITLE.c_str()); }
+                }
+                // When stats are being shown in title, show option for how many times to update stats in title per second.
                 if (showStatsInTitle) { ImGui::SliderFloat("Title Updates per Second", &TitleUpdatesPerSecond, 0.01f, 10.0f); }
 
                 ImGui::NewLine();
 
                 // Display frame time, frame rate, and a graph of previous frame times.
-                ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-                float frameTimesFloat[FPSTimer::maxDeltaTimes];
-                std::copy(FPSTimer::deltaTimes.begin(), FPSTimer::deltaTimes.end(), frameTimesFloat);
+                ImGui::Text("Application average %.3f ms/frame (%u FPS)", FPSTracker::frameTimeInMilliseconds, FPSTracker::FPS);
+                float frameTimesFloat[FPSTracker::maxDeltaTimes];
+                std::copy(FPSTracker::deltaTimes.begin(), FPSTracker::deltaTimes.end(), frameTimesFloat);
                 ImGui::PlotLines("Frame times", frameTimesFloat, IM_ARRAYSIZE(frameTimesFloat));
 
                 ImGui::NewLine();
 
-                // Display RAM usage after formatting RAM Usage from bytes to megabytes
+                // Display current and peak RAM usage as well as graph RAM usage over time.
                 ImGui::Text("RAM Usage: ");
-                ImGui::Text("Current: %.3fMB", (float)(RAMTracker::CurrentRAMUsage / 1000.0f / 1000.0f));
-                ImGui::Text("Peak: %.3fMB", (float)(RAMTracker::PeakRAMUsage / 1000.0f / 1000.0f));
+                ImGui::Text("Current: %.3fMB", (float)RAMTracker::GetMegabytesFromBytes(RAMTracker::CurrentRAMUsage));
+                ImGui::Text("Peak: %.3fMB", (float)RAMTracker::GetMegabytesFromBytes(RAMTracker::PeakRAMUsage));
                 float RAMValuesFloat[RAMTracker::maxRAMUsageValues];
                 std::copy(RAMTracker::RAMValues.begin(), RAMTracker::RAMValues.end(), RAMValuesFloat);
                 for (auto& i : RAMValuesFloat)
@@ -634,25 +642,24 @@ int main(void)
 
         /* RENDERING */
         {
-        // Draw entire Scene to the screen.
-        renderer.DrawScene(g_Scene);
+            // Draw entire Scene to the screen.
+            renderer.DrawScene(g_Scene);
 
-        /* Render ImGui*/
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+            /* Render ImGui*/
+            ImGui::Render();
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        /* Swap front and back buffers. 
-        *   Screen is showing front buffer while the back buffer is being rendered to.
-        *   Number of buffers can be increased with the downside of increased input latency.
-        */
-        glfwSwapBuffers(window);
+            /* Swap front and back buffers. 
+            *   Screen is showing front buffer while the back buffer is being rendered to.
+            *   Number of buffers can be increased with the downside of increased input latency.
+            */
+            glfwSwapBuffers(window);
         }
 
         /* FRAME END */
         {
             /* Update Title with FPS, frame time, and RAM usage */
             if (showStatsInTitle) {UpdateTitle(window); }
-            else glfwSetWindowTitle(window, WINDOW_TITLE.c_str());
 
             /* Poll for and process events */
             glfwPollEvents();
@@ -664,7 +671,7 @@ int main(void)
 
     #pragma region Program End
     /* PRINT STATS OF LAST FRAME */
-    FPSTimer::UpdateValues(Timer::time);
+    FPSTracker::Update();
 
     int width = 0;
     int height = 0;
@@ -673,16 +680,23 @@ int main(void)
     glfwGetWindowSize(window, width_ptr, height_ptr);
     unsigned int numberOfPixels = width * height;
 
+    // Format RAM correctly
+    const int bufferSize = 50;
+    char currentRAMbuffer[bufferSize];
+    char peakRAMbuffer[bufferSize];
+    std::snprintf(currentRAMbuffer, bufferSize, "%.1f", (float)(RAMTracker::GetMegabytesFromBytes(RAMTracker::CurrentRAMUsage)));
+    std::snprintf(peakRAMbuffer, bufferSize, "%.1f", (float)(RAMTracker::GetMegabytesFromBytes(RAMTracker::PeakRAMUsage)));
+
     const std::string closeMSG = "Statistics on Application Close:\n";
     printf(("\n"
            + closeMSG
            + "\n" +
-           +"    AVG FPS: " + std::to_string(FPSTimer::FPS) + "fps\n"
-           + "    AVG FRAME TIME: " + std::to_string(FPSTimer::frameTimeInMilliseconds) + "ms\n"
-           + "    AVG PIXELS PROCESSED PER SECOND: " + AddCommas(std::to_string((unsigned long long int)(FPSTimer::FPS * numberOfPixels))) + " pixels\n"
+           +"    AVG FPS: " + std::to_string(FPSTracker::FPS) + "fps\n"
+           + "    AVG FRAME TIME: " + std::to_string(FPSTracker::frameTimeInMilliseconds) + "ms\n"
+           + "    AVG PIXELS PROCESSED PER SECOND: " + AddCommas(std::to_string((unsigned long long int)(FPSTracker::FPS * numberOfPixels))) + " pixels\n"
            + "\n" +
-           +"    CURRENT RAM USAGE: " + std::to_string(RAMTracker::GetMegabytesFromBytes(RAMTracker::CurrentRAMUsage)) + "MB\n" +
-           +"    PEAK RAM USAGE: " + std::to_string(RAMTracker::GetMegabytesFromBytes(RAMTracker::PeakRAMUsage)) + "MB\n" +
+           +"    CURRENT RAM USAGE: " + currentRAMbuffer + "MB\n" +
+           +"    PEAK RAM USAGE: " + peakRAMbuffer + "MB\n" +
            +"\n").c_str());
 
     /* Free memory allocated to storing global Scene data */

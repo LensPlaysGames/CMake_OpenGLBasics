@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.8)
 
 set(SOURCE_FILES 
     "Camera.cpp" 
-    "FPSTimer.cpp" 
+    "FPSTracker.cpp" 
     "Mesh.cpp" 
     "Model.cpp" 
     "Object.cpp" 
@@ -23,7 +23,7 @@ set(SOURCE_FILES
 set(HEADER_FILES 
     "Primitives.h" 
     "Camera.h" 
-    "FPSTimer.h" 
+    "FPSTracker.h" 
     "Mesh.h" 
     "Model.h" 
     "Object.h" 

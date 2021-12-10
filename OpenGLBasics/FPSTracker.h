@@ -1,9 +1,9 @@
-#ifndef FPSTIMER_H
-#define FPSTIMER_H
+#ifndef FPS_TRACKER_H
+#define FPS_TRACKER_H
 
 #include <array>
 
-class FPSTimer
+class FPSTracker
 {
 /* The Idea:
 *   Keep an array of a certain amount of previous frames' delta times, and calculate average FPS and frame time based off of that data.
@@ -23,7 +23,7 @@ public:
     static void AddFrame(double deltaTime);
     
     // Calculate FPS and frame time in milliseconds, and set lastTimeFPSUpdated to time
-    static void UpdateValues(double time);
+    static void Update();
 };
 
 #endif

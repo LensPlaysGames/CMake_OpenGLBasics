@@ -15,8 +15,8 @@ public:
 
     static void AddCurrentRAMValue();
 
-    static size_t GetMegabytesFromBytes(size_t bytes) {
-        return (bytes / 1000 / 1000);
+    static float GetMegabytesFromBytes(size_t bytes) {
+        return bytes / 1000.0f / 1000.0f;
     }
 };
 

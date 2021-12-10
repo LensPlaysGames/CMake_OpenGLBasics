@@ -1,12 +1,12 @@
-#include "FPSTimer.h"
+#include "FPSTracker.h"
 
-std::array<double, FPSTimer::maxDeltaTimes> FPSTimer::deltaTimes;
-unsigned short int FPSTimer::frameCounter = 0;
-double FPSTimer::deltaTimesSum = 0.0;
-unsigned short int FPSTimer::FPS = 0;
-double FPSTimer::frameTimeInMilliseconds = 0.0;
+std::array<double, FPSTracker::maxDeltaTimes> FPSTracker::deltaTimes;
+unsigned short int FPSTracker::frameCounter = 0;
+double FPSTracker::deltaTimesSum = 0.0;
+unsigned short int FPSTracker::FPS = 0;
+double FPSTracker::frameTimeInMilliseconds = 0.0;
 
-void FPSTimer::AddFrame(double deltaTime) {
+void FPSTracker::AddFrame(double deltaTime) {
     frameCounter++;
     // Remove value being overwritten.
     deltaTimesSum -= deltaTimes[frameCounter];
@@ -17,7 +17,7 @@ void FPSTimer::AddFrame(double deltaTime) {
     if (frameCounter + 1 == maxDeltaTimes) { frameCounter = 0; }
 }
 
-void FPSTimer::UpdateValues(double time)
+void FPSTracker::Update()
 {
     // Calculate average frame time + fps and 
     frameTimeInMilliseconds = (deltaTimesSum / maxDeltaTimes) * 1000;
