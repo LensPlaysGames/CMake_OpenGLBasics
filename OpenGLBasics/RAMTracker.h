@@ -14,6 +14,10 @@ public:
     static void Update();
 
     static void AddCurrentRAMValue();
+
+    static size_t GetMegabytesFromBytes(size_t bytes) {
+        return (bytes / 1000 / 1000);
+    }
 };
 
 #endif

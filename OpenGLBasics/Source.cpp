@@ -474,7 +474,7 @@ void UpdateTitle(GLFWwindow* window) {
         FPSTimer::UpdateValues(Timer::time);
 
         char buffer[50];
-        std::snprintf(buffer, 50, "%.1f", (float)(RAMTracker::CurrentRAMUsage / 1000.0f / 1000.0f));
+        std::snprintf(buffer, 50, "%.1f", (float)(RAMTracker::GetMegabytesFromBytes(RAMTracker::CurrentRAMUsage)));
 
         // Set window title to initial window title + frame time + fps + RAM usage
         glfwSetWindowTitle(window, 
@@ -489,12 +489,14 @@ void UpdateTitle(GLFWwindow* window) {
 
 int main(void)
 {
+    #pragma region Program Start
+    /* PROGRAM START */
     GLFWwindow* window = InitializeWindow();
 
     /* Print version number to console */
     printf("OpenGL Version %s\n", glGetString(GL_VERSION));
 
-    /* Object creation - Populate global scene objectMap with objects 
+    /* Object creation - Populate global scene objectMap with objects
     *   Add to and/or change this function to change the scene arrangement!
     */
     CreateObjects();
@@ -504,28 +506,32 @@ int main(void)
     glEnable(GL_CULL_FACE);
     //glEnable(GL_STENCIL_TEST);
 
-    Renderer renderer;
-
+    #pragma region Dear ImGui Configuration
     /* IMGUI CONFIGURATION */
+    // Init
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
-    
-    /* ImGui State */
+
     // Light
     bool showLightOptions = false;
     bool animateLightMovement = true;
     float radius = 2.0f;
     float speed = 1.0f;
     glm::vec2 lightMoveScale(1.0f);
+
     // Stats
     bool showStats = false;
     bool showStatsInTitle = false;
+    #pragma endregion
 
     // Initialize Light to Position.
     glm::vec3 initialLightPosition(0.0f, 10.0f, 10.0f);
     g_Scene.MainLight->MoveLight(initialLightPosition);
+
+    Renderer renderer;
+    #pragma endregion
 
     /* Loop until the window should close */
     while (!glfwWindowShouldClose(window))
@@ -577,11 +583,15 @@ int main(void)
                 ImGui::Checkbox("Show Stats in Title", &showStatsInTitle);
                 if (showStatsInTitle) { ImGui::SliderFloat("Title Updates per Second", &TitleUpdatesPerSecond, 0.01f, 10.0f); }
 
+                ImGui::NewLine();
+
                 // Display frame time, frame rate, and a graph of previous frame times.
                 ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
                 float frameTimesFloat[FPSTimer::maxDeltaTimes];
                 std::copy(FPSTimer::deltaTimes.begin(), FPSTimer::deltaTimes.end(), frameTimesFloat);
                 ImGui::PlotLines("Frame times", frameTimesFloat, IM_ARRAYSIZE(frameTimesFloat));
+
+                ImGui::NewLine();
 
                 // Display RAM usage after formatting RAM Usage from bytes to megabytes
                 ImGui::Text("RAM Usage: ");
@@ -590,7 +600,7 @@ int main(void)
                 float RAMValuesFloat[RAMTracker::maxRAMUsageValues];
                 std::copy(RAMTracker::RAMValues.begin(), RAMTracker::RAMValues.end(), RAMValuesFloat);
                 for (auto& i : RAMValuesFloat)
-                    i = i / 1000.0f / 1000.0f;
+                    i = RAMTracker::GetMegabytesFromBytes(i);
                 ImGui::PlotLines("RAM Usage", RAMValuesFloat, IM_ARRAYSIZE(RAMValuesFloat));
             }
 
@@ -652,7 +662,8 @@ int main(void)
         }
     }
 
-#pragma region Print End Statistics
+    #pragma region Program End
+    /* PRINT STATS OF LAST FRAME */
     FPSTimer::UpdateValues(Timer::time);
 
     int width = 0;
@@ -665,11 +676,14 @@ int main(void)
     const std::string closeMSG = "Statistics on Application Close:\n";
     printf(("\n"
            + closeMSG
-           + "    AVG FPS: " + std::to_string(FPSTimer::FPS) + "fps\n"
+           + "\n" +
+           +"    AVG FPS: " + std::to_string(FPSTimer::FPS) + "fps\n"
            + "    AVG FRAME TIME: " + std::to_string(FPSTimer::frameTimeInMilliseconds) + "ms\n"
            + "    AVG PIXELS PROCESSED PER SECOND: " + AddCommas(std::to_string((unsigned long long int)(FPSTimer::FPS * numberOfPixels))) + " pixels\n"
-           + "\n").c_str());
-#pragma endregion
+           + "\n" +
+           +"    CURRENT RAM USAGE: " + std::to_string(RAMTracker::GetMegabytesFromBytes(RAMTracker::CurrentRAMUsage)) + "MB\n" +
+           +"    PEAK RAM USAGE: " + std::to_string(RAMTracker::GetMegabytesFromBytes(RAMTracker::PeakRAMUsage)) + "MB\n" +
+           +"\n").c_str());
 
     /* Free memory allocated to storing global Scene data */
     DeleteScene(g_Scene);
@@ -682,5 +696,7 @@ int main(void)
     glfwDestroyWindow(window);
 
     Exit();
+    #pragma endregion
+
     return 0;
 }
