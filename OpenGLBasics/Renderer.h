@@ -76,16 +76,24 @@ public:
 };
 
 /* Scene Data */
-struct Scene {
+class Scene {
+public:
     Camera MainCamera;                                      // SCENE CAMERA (CONTROLLABLE WITH KEYBOARD + MOUSE)
     LightObject* MainLight;                                 // SCENE LIGHT (USED WITH LIT SHADERS)
     std::map<Shader*, std::vector<Object*>> Objects;        // OBJECTS THAT ARE DRAWN USING SHADER EVERY FRAME
+    unsigned int NumberOfObjects;                           // TOTAL NUMBER OF OBJECTS IN SCENE (1 INCLUDES LIGHT)
     glm::vec3 BackgroundColor;                              // CLEAR COLOR (EVERYTHING THAT ISN'T AN OBJECT WILL BE THIS COLOR)
 
     Scene(Camera mainCamera, LightObject* mainLight) : MainCamera(mainCamera) {
         MainLight = mainLight;
         BackgroundColor = glm::vec3(0.0f);
+        NumberOfObjects = 1;
     };
+
+    void AddObject(Shader* shader, Object* object) {
+        NumberOfObjects++;
+        Objects[shader].push_back(object);
+    }
 };
 
 class Renderer {

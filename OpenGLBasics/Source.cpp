@@ -320,8 +320,8 @@ void CreateObjects() {
     *       - glm::vec3 Scale           - The size of the model; a multiplier, so default is 1.
     * 
     *   Create an Object with Shader, Model, *Position, *Rotation, and *Scale with the following syntax(es):
-    *       From Model:     'g_Objects[{Shader Ptr}].push_back(new Object({Model}, {*Position}, {*Rotation}, {*Scale}));'
-    *       From Object:    'g_Objects[{Shader Ptr}].push_back({Object Ptr});'
+    *       From Model:     'g_Scene.AddObject({Shader Ptr}, new Object({Model}, {*Position}, {*Rotation}, {*Scale}));'
+    *       From Object:    'g_Scene.AddObject({Shader Ptr}, {Object Ptr});'
     *   '*' = optional (to an extent, cpp doesn't allow multiple overloads differentiated just by name, must be by type, so only certain combinations are available).
     */
 
@@ -337,47 +337,47 @@ void CreateObjects() {
             {
                 if (x % Stride == (Highlight % Stride) && y % Stride == (Highlight % Stride) && z % Stride == (Highlight % Stride)) {
                     glm::quat rotation = QuaternionFromEuler(rand() % 360, rand() % 360, rand() % 360);
-                    g_Scene.Objects[lit].push_back(new Object(cube, glm::vec3(x, y, -z), rotation));
-                    g_Scene.Objects[lit].push_back(new Object(pyramid, glm::vec3(-x, y, -z), rotation));
+                    g_Scene.AddObject(lit, new Object(cube, glm::vec3(x, y, -z), rotation));
+                    g_Scene.AddObject(lit, new Object(pyramid, glm::vec3(-x, y, -z), rotation));
                 }
             }
         }
     }
 
     /* LIT */
-    g_Scene.Objects[lit].push_back(new Object(cube));
+    g_Scene.AddObject(lit, new Object(cube));
 
     /* Cyan triangle atop a grey square */
     triangle.SetMaterial(new Material(glm::vec3(0.01f, 1.0f, 1.0f)));
-    g_Scene.Objects[lit].push_back(new Object(triangle, glm::vec3(-2.0f, -4.0f, 0.0f)));
-    g_Scene.Objects[lit].push_back(new Object(square, glm::vec3(-2.0f, -5.0f, 0.0f)));
+    g_Scene.AddObject(lit, new Object(triangle, glm::vec3(-2.0f, -4.0f, 0.0f)));
+    g_Scene.AddObject(lit, new Object(square, glm::vec3(-2.0f, -5.0f, 0.0f)));
 
     /* Test models loaded from file */
-    g_Scene.Objects[lit].push_back(new Object(sloth, glm::vec3(-250.0f, 0.0f, -175.0f), QuaternionFromEuler(55, 0, 90), glm::vec3(5.0f)));
-    g_Scene.Objects[lit].push_back(new Object(benchy, glm::vec3(-10.0f, 0.0f, 2.0f), QuaternionFromEuler(-90, -90, 0), glm::vec3(0.075f)));
-    g_Scene.Objects[lit].push_back(new Object(sloth, glm::vec3(-15.0f, 0.0f, 0.0f), QuaternionFromEuler(0, 0, 90), glm::vec3(0.1f)));
+    g_Scene.AddObject(lit, new Object(sloth, glm::vec3(-250.0f, 0.0f, -175.0f), QuaternionFromEuler(55, 0, 90), glm::vec3(5.0f)));
+    g_Scene.AddObject(lit, new Object(benchy, glm::vec3(-10.0f, 0.0f, 2.0f), QuaternionFromEuler(-90, -90, 0), glm::vec3(0.075f)));
+    g_Scene.AddObject(lit, new Object(sloth, glm::vec3(-15.0f, 0.0f, 0.0f), QuaternionFromEuler(0, 0, 90), glm::vec3(0.1f)));
 
     /* Colorful motopig array */
-    g_Scene.Objects[lit].push_back(new Object(motopig, glm::vec3(5.0f, 2.0f, 2.0f), QuaternionFromEuler(0, 90, 90), glm::vec3(0.2f)));
+    g_Scene.AddObject(lit, new Object(motopig, glm::vec3(5.0f, 2.0f, 2.0f), QuaternionFromEuler(0, 90, 90), glm::vec3(0.2f)));
     motopig.SetMaterial(MAT_grey);
-    g_Scene.Objects[lit].push_back(new Object(motopig, glm::vec3(9.0f, 2.0f, 2.0f), QuaternionFromEuler(0, 90, 90), glm::vec3(0.2f)));
+    g_Scene.AddObject(lit, new Object(motopig, glm::vec3(9.0f, 2.0f, 2.0f), QuaternionFromEuler(0, 90, 90), glm::vec3(0.2f)));
     motopig.SetMaterial(MAT_absorbative);
-    g_Scene.Objects[lit].push_back(new Object(motopig, glm::vec3(13.0f, 2.0f, 2.0f), QuaternionFromEuler(0, 90, 90), glm::vec3(0.2f)));
+    g_Scene.AddObject(lit, new Object(motopig, glm::vec3(13.0f, 2.0f, 2.0f), QuaternionFromEuler(0, 90, 90), glm::vec3(0.2f)));
     motopig.SetMaterial(MAT_absorbativeRed);
-    g_Scene.Objects[lit].push_back(new Object(motopig, glm::vec3(5.0f, 6.0f, 2.0f), QuaternionFromEuler(0, 90, 90), glm::vec3(0.2f)));
+    g_Scene.AddObject(lit, new Object(motopig, glm::vec3(5.0f, 6.0f, 2.0f), QuaternionFromEuler(0, 90, 90), glm::vec3(0.2f)));
     motopig.SetMaterial(MAT_absorbativeGreen);
-    g_Scene.Objects[lit].push_back(new Object(motopig, glm::vec3(9.0f, 6.0f, 2.0f), QuaternionFromEuler(0, 90, 90), glm::vec3(0.2f)));
+    g_Scene.AddObject(lit, new Object(motopig, glm::vec3(9.0f, 6.0f, 2.0f), QuaternionFromEuler(0, 90, 90), glm::vec3(0.2f)));
     motopig.SetMaterial(MAT_absorbativeBlue);
-    g_Scene.Objects[lit].push_back(new Object(motopig, glm::vec3(13.0f, 6.0f, 2.0f), QuaternionFromEuler(0, 90, 90), glm::vec3(0.2f)));
+    g_Scene.AddObject(lit, new Object(motopig, glm::vec3(13.0f, 6.0f, 2.0f), QuaternionFromEuler(0, 90, 90), glm::vec3(0.2f)));
     motopig.SetMaterial(MAT_red);
-    g_Scene.Objects[lit].push_back(new Object(motopig, glm::vec3(5.0f, 10.0f, 2.0f), QuaternionFromEuler(0, 90, 90), glm::vec3(0.2f)));
+    g_Scene.AddObject(lit, new Object(motopig, glm::vec3(5.0f, 10.0f, 2.0f), QuaternionFromEuler(0, 90, 90), glm::vec3(0.2f)));
     motopig.SetMaterial(MAT_green);
-    g_Scene.Objects[lit].push_back(new Object(motopig, glm::vec3(9.0f, 10.0f, 2.0f), QuaternionFromEuler(0, 90, 90), glm::vec3(0.2f)));
+    g_Scene.AddObject(lit, new Object(motopig, glm::vec3(9.0f, 10.0f, 2.0f), QuaternionFromEuler(0, 90, 90), glm::vec3(0.2f)));
     motopig.SetMaterial(MAT_blue);
-    g_Scene.Objects[lit].push_back(new Object(motopig, glm::vec3(13.0f, 10.0f, 2.0f), QuaternionFromEuler(0, 90, 90), glm::vec3(0.2f)));
+    g_Scene.AddObject(lit, new Object(motopig, glm::vec3(13.0f, 10.0f, 2.0f), QuaternionFromEuler(0, 90, 90), glm::vec3(0.2f)));
 
     /* He looks awfully lonely out there... */
-    g_Scene.Objects[lit].push_back(new Object(astronaut, glm::vec3(-2.0f, 6.0f, 4.2f), QuaternionFromEuler(-90, 0, 0), glm::vec3(0.05f)));
+    g_Scene.AddObject(lit, new Object(astronaut, glm::vec3(-2.0f, 6.0f, 4.2f), QuaternionFromEuler(-90, 0, 0), glm::vec3(0.05f)));
 
     /* Light configuration */
     glm::vec3 lightColor(1.0f);
@@ -389,6 +389,8 @@ void CreateObjects() {
     g_Scene.MainLight->Obj = new Object(cube, g_Scene.MainLight->ObjLight->position, glm::vec3(0.25f));
     // Use solid shading.
     g_Scene.MainLight->ObjShader = defaultShader;
+
+    printf("Total Objects in Scene: %i\n", g_Scene.NumberOfObjects);
 }
 
 void DeleteScene(Scene scene) {
@@ -512,12 +514,13 @@ int main(void)
     
     /* ImGui State */
     // Light
+    bool showLightOptions = false;
     bool animateLightMovement = true;
     float radius = 2.0f;
     float speed = 1.0f;
     glm::vec2 lightMoveScale(1.0f);
     // Stats
-    bool showStats = true;
+    bool showStats = false;
     bool showStatsInTitle = false;
 
     // Initialize Light to Position.
@@ -548,17 +551,22 @@ int main(void)
         {
             ImGui::Begin("Main Panel!");
             ImGui::SetWindowCollapsed(true, ImGuiCond_Once);
+
+            ImGui::Checkbox("Show Light Options", &showLightOptions);
             /* Light Configuration */
-            ImGui::DragFloat3("Light Origin", &initialLightPosition[0], 0.1f);
-            //ImGui::DragFloat("Light Intensity", &g_Scene.MainLight->ObjLight->intensity, 0.05f);   // POINT LIGHT ONLY
-            if (ImGui::ColorEdit3("Light Color", &g_Scene.MainLight->ObjLight->color[0])) { g_Scene.MainLight->SetColor(g_Scene.MainLight->ObjLight->color); }
-            if (ImGui::Button("Randomize Light Color")) { g_Scene.MainLight->SetColor(GetRandomVec3(1000.0f)); }
-            ImGui::Checkbox("Light Movement", &animateLightMovement);
-            if (animateLightMovement) {
-                ImGui::DragFloat("Orbit Radius", &radius, 0.1f, 0.001f, 1000.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
-                ImGui::DragFloat("Speed", &speed, 0.05f, 0.001f, 100.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
-                ImGui::DragFloat2("Scale", &lightMoveScale[0], 0.05f);
+            if (showLightOptions) {
+                ImGui::DragFloat3("Light Origin", &initialLightPosition[0], 0.1f);
+                //ImGui::DragFloat("Light Intensity", &g_Scene.MainLight->ObjLight->intensity, 0.05f);   // POINT LIGHT ONLY (COMMENTED IN SHADER ATM)
+                if (ImGui::ColorEdit3("Light Color", &g_Scene.MainLight->ObjLight->color[0])) { g_Scene.MainLight->SetColor(g_Scene.MainLight->ObjLight->color); }
+                if (ImGui::Button("Randomize Light Color")) { g_Scene.MainLight->SetColor(GetRandomVec3(1000.0f)); }
+                ImGui::Checkbox("Light Movement", &animateLightMovement);
+                if (animateLightMovement) {
+                    ImGui::DragFloat("Orbit Radius", &radius, 0.1f, 0.001f, 1000.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
+                    ImGui::DragFloat("Speed", &speed, 0.05f, 0.001f, 100.0f, "%.2f", ImGuiSliderFlags_Logarithmic);
+                    ImGui::DragFloat2("Scale", &lightMoveScale[0], 0.05f);
+                }
             }
+            
             ImGui::NewLine();
 
             /* Framerate */
@@ -588,11 +596,16 @@ int main(void)
 
             ImGui::NewLine();
 
+            /* Objects */
+            // Display number of objects in global scene
+            ImGui::Text("Total Objects in Scene: %i", g_Scene.NumberOfObjects);
+
             // Place Cube with Button
             if (ImGui::Button("Place Cube")) {
                 for (auto& i : g_Scene.Objects)
                 {
-                    g_Scene.Objects[i.first].push_back(new Object(Primitives::Cube(), g_Scene.MainCamera.Position));
+                    // The Primitives::Cube() call isn't the best memory-wise. I think I'd rather have primitives have it's own static primitive models vs creating them with a function.
+                    g_Scene.AddObject(i.first, new Object(Primitives::Cube(), g_Scene.MainCamera.Position));
                     break;
                 }
             }
