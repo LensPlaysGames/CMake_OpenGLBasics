@@ -8,6 +8,7 @@ Position, rotate, and scale objects for nearly **endless fun!** \
 ## Controls
 |**Key**|**Action**|
 |:---:|---|
+|RMB + Drag|Look Around|
 |WASD|Move|
 |Q|Move Up|
 |E|Move Down|
