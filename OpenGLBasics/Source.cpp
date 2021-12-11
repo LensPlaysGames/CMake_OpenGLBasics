@@ -34,7 +34,7 @@
 *   - C                 Reset Light Color
 *   - Mouse Scroll      Change Camera Zoom
 *   - X                 Reset Camera Zoom
-*   - Mouse XY          Look Around
+*   - RMB + Drag        Look Around
 * 
 * In CreateObjects(), find out how to:
 *   - Create and place an Object within the program:
@@ -138,10 +138,13 @@ void OnKeyPressed(GLFWwindow* window, int key, int scancode, int action, int mod
     // Randomize light color if 'Space' is pressed.
     if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
         g_Scene.MainLight->SetColor(GetRandomVec3(1000.0f));
+        g_Scene.MainLight->ObjLight->ambient = 0.05f * GetRandomVec3(1000.0f);
+        g_Scene.MainLight->ObjLight->diffuse = 0.8f * GetRandomVec3(1000.0f);
+        g_Scene.MainLight->ObjLight->specular = 0.5f * GetRandomVec3(1000.0f);
     }
     // Set light color to white if 'C' is pressed.
     else if (key == GLFW_KEY_C && action == GLFW_PRESS) {
-        g_Scene.MainLight->SetColor(glm::vec3(1.0f));
+        g_Scene.MainLight->ResetLight();
     }
     // Reset camera zoom if 'X' is pressed.
     else if (key == GLFW_KEY_X && action == GLFW_PRESS) {
@@ -243,6 +246,10 @@ void CreateObjects() {
     // All objects in the global object map will be rendered each frame in the main loop using shader.
 
     /* SHADER CREATION
+    *   A Shader is a CPU representation of the code that will be run on the GPU to draw an Object on the screen.
+    * 
+    *   Shaders are stored on the heap.
+    * 
     *   Create Shader from files in SHADER_DIR using the following syntax:
     *       Preferred (from SHADER_DIR):    'Shader* {Shader Name} = CreateShader({Vertex Shader File Name}.c_str(), {Fragment Shader File Name}.c_str());'
     *       From custom directory:          'Shader* {Shader Name} = new Shader("Path/To/VertexShader.glsl", "Path/To/FragmentShader.glsl");'
@@ -257,7 +264,9 @@ void CreateObjects() {
 
     /* MATERIAL CREATION 
     *   A Material defines properties that influence how a Model will look in the Scene.
-    *   Namely, the color and the lighting properties.
+    *       Namely, the color and the lighting properties.
+    * 
+    *   Materials, like Shaders, are stored on the heap.
     * 
     *   MATERIAL PROPERTIES (TYPE, NAME - DESCRIPTION):
     *       - glm::vec3 color       - The base color of the object to be affected by lighting.
@@ -267,11 +276,11 @@ void CreateObjects() {
     *       - float shininess       - Influences lighting highlight size and intensity (higher = less intense).
     * 
     *   Create a pointer to a Material using the following syntax(es):
-    *       Default:                'new Material()'
-    *       From Color:             'Material* {Material Name} = new Material()({Color})'
-    *       From Color + Lighting:  'Material* {Material Name} = new Material()({Color}, {Ambient}, {Diffuse}, {Specular}, {Shininess})'
-    *       Copy Another Material:  'Material* {Material Name} = new Material({Pointer to Material To Copy});
-    *       Copy Material Except Color
+    *       Default:                `new Material()`
+    *       From Color:             `Material* {Material Name} = new Material()({Color})`
+    *       From Color + Lighting:  `Material* {Material Name} = new Material()({Color}, {Ambient}, {Diffuse}, {Specular}, {Shininess})`
+    *       Copy Another Material:  `Material* {Material Name} = new Material(*{Pointer to Material To Copy});`
+    *       Copy With New Color:    `Material* {Material Name} = new Material(*{Pointer to Material To Copy}, {Color});`
     */
 
     // Colorful Materials!
@@ -282,14 +291,15 @@ void CreateObjects() {
     
     // Absorbative Materials (dark ambient, diffuse, and specular).
     Material* MAT_absorbative = new Material(glm::vec3(0.75f), glm::vec3(0.05f), glm::vec3(0.56f), glm::vec3(0.12f), 16.0f);
-    Material* MAT_absorbativeRed = new Material(MAT_absorbative);
-    MAT_absorbativeRed->color = glm::vec3(MAT_absorbativeRed->color.r, 0.0f, 0.0f);
-    Material* MAT_absorbativeGreen = new Material(MAT_absorbative);
-    MAT_absorbativeGreen->color = glm::vec3(0.0f, MAT_absorbativeGreen->color.g, 0.0f);
-    Material* MAT_absorbativeBlue = new Material(MAT_absorbative);
-    MAT_absorbativeBlue->color = glm::vec3(0.0f, 0.0f, MAT_absorbativeBlue->color.b);
+    Material* MAT_absorbativeRed = new Material(*MAT_absorbative, glm::vec3(0.75f, 0.0f, 0.0f));
+    Material* MAT_absorbativeGreen = new Material(*MAT_absorbative, glm::vec3(0.0f, 0.75f, 0.0f));
+    Material* MAT_absorbativeBlue = new Material(*MAT_absorbative, glm::vec3(0.0f, 0.0f, 0.75f));
 
     /* MODEL CREATION
+    *   A Model is a class that holds all the data needed to draw a 3D model on the screen, except for a Shader.
+    * 
+    *   Models are stored in the stack, however the Meshes and Materials within them are stored on the heap.
+    * 
     *   Create a 3D-Model using the following syntax(es):
     *       From Mesh:          'Model {Model Name}({Mesh})'
     *       From vector<Mesh>:  'Model {Model Name}({Meshes})'
@@ -312,6 +322,8 @@ void CreateObjects() {
 
     /* OBJECT CREATION 
     *   An Object is rendered every frame if it is within the global Scene Objects map (or if additional code is added to render it in the main loop).
+    * 
+    *   Objects are stored on the heap (like Shaders and Materials).
     *   
     *   OBJECT PROPERTIES (TYPE, NAME - DESCRIPTION):
     *       - Model ObjModel            - The 3D-Model to draw each frame. If none is provided, the object is not drawn.
@@ -567,7 +579,15 @@ int main(void)
                 ImGui::DragFloat3("Light Origin", &initialLightPosition[0], 0.1f);
                 //ImGui::DragFloat("Light Intensity", &g_Scene.MainLight->ObjLight->intensity, 0.05f);   // POINT LIGHT ONLY (COMMENTED IN SHADER ATM)
                 if (ImGui::ColorEdit3("Light Color", &g_Scene.MainLight->ObjLight->color[0])) { g_Scene.MainLight->SetColor(g_Scene.MainLight->ObjLight->color); }
-                if (ImGui::Button("Randomize Light Color")) { g_Scene.MainLight->SetColor(GetRandomVec3(1000.0f)); }
+                ImGui::ColorEdit3("Light Ambient Color", &g_Scene.MainLight->ObjLight->ambient[0]);
+                ImGui::ColorEdit3("Light Diffuse Color", &g_Scene.MainLight->ObjLight->diffuse[0]);
+                ImGui::ColorEdit3("Light Specular Color", &g_Scene.MainLight->ObjLight->specular[0]);
+                if (ImGui::Button("Randomize Light Color")) { 
+                    g_Scene.MainLight->SetColor(GetRandomVec3(1000.0f));
+                    g_Scene.MainLight->ObjLight->ambient = 0.05f * GetRandomVec3(1000.0f);
+                    g_Scene.MainLight->ObjLight->diffuse = 0.8f * GetRandomVec3(1000.0f);
+                    g_Scene.MainLight->ObjLight->specular = 0.5f * GetRandomVec3(1000.0f);
+                }
                 ImGui::Checkbox("Light Movement", &animateLightMovement);
                 if (animateLightMovement) {
                     ImGui::DragFloat("Orbit Radius", &radius, 0.1f, 0.001f, 1000.0f, "%.2f", ImGuiSliderFlags_Logarithmic);

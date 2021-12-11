@@ -19,6 +19,7 @@ uniform struct Material {
 
 in vec3 FragPositionInWorld;
 in vec3 Normal;
+in vec2 TexCoords;
 
 out vec4 FragColor;
 uniform vec3 _ViewerPosition = vec3(0.0f);

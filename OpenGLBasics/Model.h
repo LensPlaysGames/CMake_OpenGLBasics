@@ -23,13 +23,21 @@ struct Material {
         shininess = 32.0f;
     }
 
-    Material(Material* materialToCopy) {
-        color = materialToCopy->color;
-        ambient = materialToCopy->ambient;
-        diffuse = materialToCopy->diffuse;
-        specular = materialToCopy->specular;
-        shininess = materialToCopy->shininess;
-    }
+    Material(const Material& other) {
+        color = other.color;
+        ambient = other.ambient;
+        diffuse = other.diffuse;
+        specular = other.specular;
+        shininess = other.shininess;
+    };
+
+    Material(const Material& other, glm::vec3 _color) {
+        color = _color;
+        ambient = other.ambient;
+        diffuse = other.diffuse;
+        specular = other.specular;
+        shininess = other.shininess;
+    };
 
     Material(glm::vec3 _color) {
         color = _color;

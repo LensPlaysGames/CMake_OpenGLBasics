@@ -73,6 +73,16 @@ public:
         Obj->ObjModel.SetMaterial(material);
         ObjLight->color = color;
     }
+
+    void ResetLight() {
+        Material* material = Obj->ObjModel.Materials[0];
+        material->color = glm::vec3(1.0f);
+        Obj->ObjModel.SetMaterial(material);
+
+        delete ObjLight;
+        ObjLight = nullptr;
+        ObjLight = new Light();
+    }
 };
 
 /* Scene Data */
