@@ -1,8 +1,5 @@
 /*
 * TODO:
-*   - Keep track of number of total objects in scene and stuff like that.
-*   - Think about how much you hate coding GUI
-*   - Decide whether Scene struct should be made of pointers or made of data
 *   - Create logger class that will log all throughput to a file
 *   - InstancedObject abstraction for something that will be drawn a lot of times (will have a model, list of transform struct with positions, rotations, scales))
 *   - Update lighting system (renderer + shader) to work with multiple lights, multiple types of lights
@@ -44,7 +41,7 @@
 
 
 /* Render Pipeline Outline:
-*   A Scene has a map<Shader*, vector<Object*>> Objects that are drawn every frame using the given shader.
+*   A Scene has a map<Shader*, vector<Object*>> Objects that are drawn every frame with the given shader using a Renderer.
 *   A Scene has a LightObject —a class holding a light, an object, and a shader— that will be drawn every frame and it's data used for lighting calculations.
 *   A Scene has a Camera MainCamera that has transformation matrices used to calculate where on the screen to draw what.
 */
@@ -357,7 +354,7 @@ void CreateObjects() {
     }
 
     /* LIT */
-    g_Scene.AddObject(lit, new Object(cube));
+    //g_Scene.AddObject(lit, new Object(cube));
 
     /* Cyan triangle atop a grey square */
     triangle.SetMaterial(new Material(glm::vec3(0.01f, 1.0f, 1.0f)));

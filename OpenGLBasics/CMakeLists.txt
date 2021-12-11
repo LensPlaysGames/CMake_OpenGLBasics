@@ -5,7 +5,7 @@ set(SOURCE_FILES
     "FPSTracker.cpp" 
     "Mesh.cpp" 
     "Model.cpp" 
-    "Object.cpp" 
+     
     "Renderer.cpp" 
     "Shader.cpp" 
     "Timer.cpp" 
@@ -32,7 +32,7 @@ set(HEADER_FILES
     "Timer.h" 
     "ProgramMemory.h"
     "RAMTracker.h"
-)
+ "Scene.h")
 
 # Add source files to this project's executable.
 add_executable (CMake_OpenGLBasics ${HEADER_FILES} ${SOURCE_FILES})
